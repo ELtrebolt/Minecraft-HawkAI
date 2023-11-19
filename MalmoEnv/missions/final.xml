@@ -1,0 +1,71 @@
+<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            
+    <About>
+    <Summary>Hello world!</Summary>
+    </About>
+    
+    <ServerSection>
+    <ServerInitialConditions>
+        <Time>
+        <StartTime>12000</StartTime>
+        <AllowPassageOfTime>false</AllowPassageOfTime>
+        </Time>
+        <Weather>clear</Weather>
+    </ServerInitialConditions>
+    <ServerHandlers>
+        <FlatWorldGenerator generatorString="3;7,56*35:9,36;,biome_1"/>
+        <DrawingDecorator>
+            <DrawEntity x="15" y="57" z="-10" type="Creeper" />
+        </DrawingDecorator>
+        <ServerQuitFromTimeUp timeLimitMs="8000"/>
+        <ServerQuitWhenAnyAgentFinishes/>
+    </ServerHandlers>
+    </ServerSection>
+    
+    <AgentSection mode="Survival">
+    <Name>MalmoTutorialBot</Name>
+    <AgentStart>
+        <Placement x="15" y="57" z="0" yaw="90"/>
+        <Inventory>
+            <InventoryItem slot="0" type="bow"/>
+            <InventoryItem slot="1" type="arrow" quantity="10"/>
+        </Inventory>
+    </AgentStart>
+    <AgentHandlers>
+        <ObservationFromNearbyEntities>
+            <Range name="entities" xrange="60" yrange="40" zrange="60"/>
+        </ObservationFromNearbyEntities>
+        <!-- <ObservationFromFullStats/> -->
+        <ObservationFromRay/>
+
+
+        <RewardForSendingCommand reward="-0.02" />
+        <RewardForDamagingEntity>
+            <Mob type ="Creeper" reward="100"/>
+        </RewardForDamagingEntity>
+        <RewardForDiscardingItem>
+            <Item reward="-2" type="arrow"/>
+        </RewardForDiscardingItem>
+        <RewardForTimeTaken delta="-1" initialReward="0" density="PER_TICK"/>
+
+
+        <ChatCommands />
+
+        <MissionQuitCommands quitDescription="give_up"/>
+
+        <ContinuousMovementCommands turnSpeedDegs="15"/>
+
+        <VideoProducer want_depth="false">
+            <Width>1000</Width>
+            <Height>1000</Height>
+        </VideoProducer>
+
+        <!-- <DiscreteMovementCommands>
+            <ModifierList type="deny-list">
+                <command>use</command>
+            </ModifierList>
+        </DiscreteMovementCommands> -->
+
+    </AgentHandlers>
+    </AgentSection>
+</Mission>

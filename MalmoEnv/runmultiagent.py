@@ -24,11 +24,15 @@ import time
 from lxml import etree
 from threading import Thread
 import threading
+import numpy as np
+from collections import defaultdict
+import math
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='malmovnv test')
-    parser.add_argument('--mission', type=str, default='missions/mobchase_single_agent.xml', help='the mission xml')
+    # 'missions/mobchase_single_agent.xml'
+    parser.add_argument('--mission', type=str, default='../sample_missions/eating_1.xml', help='the mission xml')
     parser.add_argument('--port', type=int, default=9000, help='the mission server port')
     parser.add_argument('--server', type=str, default='127.0.0.1', help='the mission server DNS or IP address')
     parser.add_argument('--server2', type=str, default=None, help="(Multi-agent) role N's server DNS or IP")
@@ -48,13 +52,14 @@ if __name__ == '__main__':
     print("number of agents: " + str(number_of_agents))
 
     def run(role):
+        ACTIONS = ['turn', 'pitch', 'use']
         env = malmoenv.make()
         env.init(xml,
                  args.port, server=args.server,
                  server2=args.server2, port2=(args.port + role),
                  role=role,
                  exp_uid=args.experimentUniqueId,
-                 episode=args.episode, resync=args.resync)
+                 episode=args.episode, resync=args.resync, action_filter=ACTIONS)
 
         def log(message):
             print('[' + str(role) + '] ' + message)
@@ -63,19 +68,97 @@ if __name__ == '__main__':
             log("reset " + str(r))
             env.reset()
 
-            done = False
-            while not done:
+            done = False 
+            LOS = False
+            while not done and not LOS:
+                # Random action
                 action = env.action_space.sample()
-                log("action: " + str(action))
+
+                # 0 aim down / 1 aim up
+                # 2 turn right / 3 turn left
+                # 4 right click shoot bow
+
+                # Turn until pig is aligned with cursor
+                # Hold Shoot based on distance to pig
+                # action = 0
+
+                log("action: " + str(env.action_space[action]))
                 obs, reward, done, info = env.step(action)
+
                 log("reward: " + str(reward))
                 # log("done: " + str(done))
-                # log("info: " + str(info))
+                log("info: " + str(info))
                 log(" obs: " + str(obs))
+
+                if info:
+                    info = eval(info.replace('false', 'False').replace('true', 'True'))
+                    if 'LineOfSight' in info and info['LineOfSight']['type'] == 'Pig':
+                        LOS = True
+                    # player_coords, pig_coords = get_player_and_pig_coords(info)
+                    # log(str(player_coords) + ' ||| ' + str(pig_coords))
+                    # yaw, pitch = calculate_yaw_and_pitch(player_coords, pig_coords)
+                    # log(str(yaw) + ' ||| ' + str(pitch))
+                    # dyaw, dpitch = discretize_yaw_and_pitch(yaw, pitch)
+                    # log(str(dyaw) + ' ||| ' + str(dpitch))
+                    # turn, move = decide_movement_actions(dyaw, dpitch)
+                    # log(str(turn) + ' ||| ' + str(move))
+                    
 
                 time.sleep(.05)
 
+            for i in range(len(env.action_space)):
+                log("action: " + str(env.action_space[i]))
+
         env.close()
+
+    def get_player_and_pig_coords(info):
+        pig_coords = {}
+        player_coords = {}
+        for i in info['entities']:
+            if i['name'] == 'Pig':
+                pig_coords['x'] = i['x']
+                pig_coords['y'] = i['y']
+                pig_coords['z'] = i['z']
+            elif i['name'] == 'MalmoTutorialBot':
+                player_coords['x'] = i['x']
+                player_coords['y'] = i['y']
+                player_coords['z'] = i['z']
+        return [player_coords, pig_coords]
+
+    def calculate_yaw_and_pitch(player_coords, pig_coords):
+        # Calculate relative position
+        rel_x = pig_coords['x'] - player_coords['x']
+        rel_y = pig_coords['y'] - player_coords['y']
+        rel_z = pig_coords['z'] - player_coords['z']
+
+        # Calculate yaw (horizontal angle)
+        yaw = math.atan2(rel_z, rel_x) * 180 / math.pi
+        pitch = math.atan2(rel_y, math.sqrt(rel_x**2 + rel_z**2)) * 180 / math.pi
+
+        return yaw, pitch
+
+    # Constants for discretization
+    NUM_YAW_BINS = 4  # Number of bins for yaw (adjust as needed)
+    NUM_PITCH_BINS = 3  # Number of bins for pitch (adjust as needed)
+
+    def discretize_yaw_and_pitch(yaw, pitch):
+        # Discretize yaw and pitch into bins
+        discrete_yaw = round((yaw % 360) / 360 * (NUM_YAW_BINS - 1))
+        discrete_pitch = round((pitch + 90) / 180 * (NUM_PITCH_BINS - 1))
+
+        return discrete_yaw, discrete_pitch
+
+    def decide_movement_actions(discrete_yaw, discrete_pitch):
+        # Based on the discretized yaw and pitch, decide on movement actions
+        # This is a simplified example; you may need to adjust based on your specific movement constraints
+
+        # Example: Turn towards the desired yaw
+        turn_action = 1 if discrete_yaw > 0 else -1
+
+        # Example: Move forward or backward based on pitch
+        move_action = 1 if discrete_pitch > 0 else -1
+
+        return turn_action, move_action
 
     threads = [Thread(target=run, args=(i,)) for i in range(number_of_agents)]
 

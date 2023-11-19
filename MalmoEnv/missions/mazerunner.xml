@@ -27,7 +27,7 @@
                 <AddQuitProducer description="finished maze"/>
                 <AddNavigationObservations/>
             </MazeDecorator>
-            <ServerQuitFromTimeUp timeLimitMs="45000"/>
+            <ServerQuitFromTimeUp timeLimitMs="4500"/>
             <ServerQuitWhenAnyAgentFinishes />
         </ServerHandlers>
     </ServerSection>
@@ -37,11 +37,26 @@
             <Placement x="-204" y="81" z="217"/>
         </AgentStart>
         <AgentHandlers>
+            <!-- <ObservationFromNearbyEntities>
+                <Range name="entities" xrange="60" yrange="40" zrange="60"/>
+            </ObservationFromNearbyEntities> -->
+            <!-- <ObservationFromSubgoalPositionList>
+                <Point x="-204" y="81" z="217" />
+            </ObservationFromSubgoalPositionList> -->
+            <!-- <ObservationFromFullStats/> -->
+            <!-- <ObservationFromRay/> -->
+
+            <ObservationFromGrid>
+                <Grid name='grid1'> 
+                    <min> </min>
+                </Grid>
+            </ObservationFromGrid>
+
             <VideoProducer want_depth="false">
-               <Width>320</Width>
-               <Height>240</Height>
+               <Width>1000</Width>
+               <Height>1000</Height>
              </VideoProducer>
-            <ContinuousMovementCommands turnSpeedDegs="840">
+            <ContinuousMovementCommands turnSpeedDegs="10">
                 <ModifierList type="deny-list"> <!-- Example deny-list: prevent agent from strafing -->
                     <command>strafe</command>
                 </ModifierList>
