@@ -79,9 +79,10 @@ class MissionInitException(Exception):
 MAX_WAIT = 60 * 3
 
 
-class Env:
+class Env(gym.Env):
     """Malmo "Env" open ai gym compatible environment API"""
     def __init__(self):
+        super().__init__()
         self.action_space = None
         self.observation_space = None
         self.xml = None

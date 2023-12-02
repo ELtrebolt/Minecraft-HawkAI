@@ -16,6 +16,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
+import random
 
 import malmoenv
 import argparse
@@ -27,6 +28,9 @@ import threading
 import numpy as np
 from collections import defaultdict
 import math
+from stable_baselines3 import DQN
+
+from MalmoEnv.custom_env.custom_env import CustomEnv
 
 if __name__ == '__main__':
 
@@ -53,7 +57,7 @@ if __name__ == '__main__':
 
     def run(role):
         ACTIONS = ['turn', 'pitch', 'use']
-        env = malmoenv.make()
+        env = CustomEnv()
         env.init(xml,
                  args.port, server=args.server,
                  server2=args.server2, port2=(args.port + role),
@@ -64,50 +68,69 @@ if __name__ == '__main__':
         def log(message):
             print('[' + str(role) + '] ' + message)
 
-        for r in range(args.episodes):
-            log("reset " + str(r))
-            env.reset()
+        model = DQN("MlpPolicy", env)
+        model.learn(total_timesteps=100000)
 
-            done = False 
-            LOS = False
-            while not done and not LOS:
-                # Random action
-                action = env.action_space.sample()
+        obs, info = env.reset()
+        while True:
+            action, _states = model.predict(obs, deterministic=True)
+            obs, reward, terminated, truncated, info = env.step(action)
+            if terminated or truncated:
+                obs, info = env.reset()
 
-                # 0 aim down / 1 aim up
-                # 2 turn right / 3 turn left
-                # 4 right click shoot bow
-
-                # Turn until pig is aligned with cursor
-                # Hold Shoot based on distance to pig
-                # action = 0
-
-                log("action: " + str(env.action_space[action]))
-                obs, reward, done, info = env.step(action)
-
-                log("reward: " + str(reward))
-                # log("done: " + str(done))
-                log("info: " + str(info))
-                log(" obs: " + str(obs))
-
-                if info:
-                    info = eval(info.replace('false', 'False').replace('true', 'True'))
-                    if 'LineOfSight' in info and info['LineOfSight']['type'] == 'Pig':
-                        LOS = True
-                    # player_coords, pig_coords = get_player_and_pig_coords(info)
-                    # log(str(player_coords) + ' ||| ' + str(pig_coords))
-                    # yaw, pitch = calculate_yaw_and_pitch(player_coords, pig_coords)
-                    # log(str(yaw) + ' ||| ' + str(pitch))
-                    # dyaw, dpitch = discretize_yaw_and_pitch(yaw, pitch)
-                    # log(str(dyaw) + ' ||| ' + str(dpitch))
-                    # turn, move = decide_movement_actions(dyaw, dpitch)
-                    # log(str(turn) + ' ||| ' + str(move))
-                    
-
-                time.sleep(.05)
-
-            for i in range(len(env.action_space)):
-                log("action: " + str(env.action_space[i]))
+        # for r in range(args.episodes):
+        #     log("reset " + str(r))
+        #     env.reset()
+        #
+        #     done = False
+        #     LOS = False
+        #     while not done and not LOS:
+        #         # Random action
+        #         action = env.action_space.sample()
+        #
+        #         # 0 aim down / 1 aim up
+        #         # 2 turn right / 3 turn left
+        #         # 4 right click shoot bow
+        #
+        #         # Turn until pig is aligned with cursor
+        #         # Hold Shoot based on distance to pig
+        #         # action = 0
+        #
+        #         log("action: " + str(env.action_space[action]))
+        #
+        #         if env.action_space[action] == "use 1":
+        #             env.step(action)
+        #             sleep_time = random.random() * 2
+        #             log(f"Sleep Time: {sleep_time}")
+        #             time.sleep(sleep_time)
+        #             log("action: use 0")
+        #             obs, reward, done, info = env.step(env.action_space.actions.index('use 0'))
+        #         else:
+        #             obs, reward, done, info = env.step(action)
+        #
+        #         log("reward: " + str(reward))
+        #         # log("done: " + str(done))
+        #         log("info: " + str(info))
+        #         log(" obs: " + str(obs))
+        #
+        #         if info:
+        #             info = eval(info.replace('false', 'False').replace('true', 'True'))
+        #             if 'LineOfSight' in info and info['LineOfSight']['type'] == 'Pig':
+        #                 LOS = True
+        #             # player_coords, pig_coords = get_player_and_pig_coords(info)
+        #             # log(str(player_coords) + ' ||| ' + str(pig_coords))
+        #             # yaw, pitch = calculate_yaw_and_pitch(player_coords, pig_coords)
+        #             # log(str(yaw) + ' ||| ' + str(pitch))
+        #             # dyaw, dpitch = discretize_yaw_and_pitch(yaw, pitch)
+        #             # log(str(dyaw) + ' ||| ' + str(dpitch))
+        #             # turn, move = decide_movement_actions(dyaw, dpitch)
+        #             # log(str(turn) + ' ||| ' + str(move))
+        #
+        #
+        #         time.sleep(.05)
+        #
+        #     for i in range(len(env.action_space)):
+        #         log("action: " + str(env.action_space[i]))
 
         env.close()
 

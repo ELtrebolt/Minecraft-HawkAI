@@ -99,8 +99,8 @@
                <DrawBlock type="spruce_fence" x="10" y="4" z="8" />
                <DrawBlock type="clay" x="10" y="3" z="8" />
                <!-- Mobs -->
-               <DrawEntity type="Pig" x="6.5" y="4" z="8.5" />
-               <DrawEntity type="Chicken" x="3.5" y="4" z="5.5" />
+               <DrawEntity type="Zombie" x="6.5" y="4" z="8.5" />
+               <DrawEntity type="Creeper" x="3.5" y="4" z="5.5" />
             </DrawingDecorator>
             <ServerQuitFromTimeUp description="out_of_time" timeLimitMs="1000000" />
             <ServerQuitWhenAnyAgentFinishes />

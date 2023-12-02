@@ -13,10 +13,11 @@
         <Weather>clear</Weather>
     </ServerInitialConditions>
     <ServerHandlers>
-        <FlatWorldGenerator generatorString="3;7,56*35:9,36;,biome_1"/>
+        <FlatWorldGenerator generatorString="3;7,56*35:9,36;,biome_1" forceReset="true"/>
         <DrawingDecorator>
-            <DrawEntity x="15" y="57" z="-10" type="Creeper" />
+            <DrawEntity x="15" y="57" z="-6" yaw="270" type="Creeper" />
         </DrawingDecorator>
+
         <ServerQuitFromTimeUp timeLimitMs="8000"/>
         <ServerQuitWhenAnyAgentFinishes/>
     </ServerHandlers>
@@ -25,7 +26,7 @@
     <AgentSection mode="Survival">
     <Name>MalmoTutorialBot</Name>
     <AgentStart>
-        <Placement x="15" y="57" z="0" yaw="90"/>
+        <Placement x="15" y="57" z="0" yaw="90" pitch="0"/>
         <Inventory>
             <InventoryItem slot="0" type="bow"/>
             <InventoryItem slot="1" type="arrow" quantity="10"/>
@@ -53,18 +54,14 @@
 
         <MissionQuitCommands quitDescription="give_up"/>
 
-        <ContinuousMovementCommands turnSpeedDegs="15"/>
 
         <VideoProducer want_depth="false">
             <Width>1000</Width>
             <Height>1000</Height>
         </VideoProducer>
 
-        <!-- <DiscreteMovementCommands>
-            <ModifierList type="deny-list">
-                <command>use</command>
-            </ModifierList>
-        </DiscreteMovementCommands> -->
+        <ContinuousMovementCommands turnSpeedDegs="180">
+        </ContinuousMovementCommands>
 
     </AgentHandlers>
     </AgentSection>
