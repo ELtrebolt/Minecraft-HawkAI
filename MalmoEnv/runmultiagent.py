@@ -30,7 +30,7 @@ from collections import defaultdict
 import math
 from stable_baselines3 import DQN
 
-from MalmoEnv.custom_env.custom_env import CustomEnv
+from custom_env.custom_env import CustomEnv
 
 if __name__ == '__main__':
 

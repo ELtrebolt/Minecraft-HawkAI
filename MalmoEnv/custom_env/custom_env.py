@@ -1,3 +1,5 @@
+import time
+
 import malmoenv
 import gym
 import numpy as np
@@ -36,10 +38,11 @@ def parseInfo(info):
                 agentz = i['z']
                 agentyaw = i['yaw']
                 agentpitch = i['pitch']
-            # elif i == info['entities'][-1] and i['name'] == 'Arrow':
-            #     if abs(i['motionX']) < 0.3 and abs(i['motionY']) < 0.3 and abs(i['motionZ']) < 0.3:
-            #         last_arrow_dis = math.sqrt( ( math.pow((creeperx - i['x']),2) + math.pow((creepery - i['y']),2) ) )
-
+            elif i == info['entities'][-1] and i['name'] == 'Arrow':
+                if abs(i['motionX']) < 0.3 and abs(i['motionY']) < 0.3 and abs(i['motionZ']) < 0.3:
+                    last_arrow_dis = math.sqrt( ( math.pow((creeperx - i['x']),2) + math.pow((creepery - i['y']),2) ) )
+                    print("DISTANCE ", last_arrow_dis)
+                    reward -= last_arrow_dis
         # if 'IsAlive' in info:
         #     isAlive = info['IsAlive']
         # if 'DamageDealt' in info:
@@ -73,8 +76,23 @@ class CustomEnv(malmoenv.core.Env):
 
     def step(self, action):
         obs, reward, done, info = super().step(action)
+        action_str, val = self.action_space[action].split()
+        sleep_time = 0.15
+        if not done:
+            if self.action_space[action].startswith("turn"):
+                time.sleep(sleep_time)
+                obs, reward, done, info = super().step(self.action_space.actions.index("turn 0"))
+            if self.action_space[action].startswith("pitch"):
+                time.sleep(sleep_time)
+                obs, reward, done, info = super().step(self.action_space.actions.index("pitch 0"))
+            if self.action_space[action] == "use 0":
+                print("sleeping")
+                time.sleep(1)
         info_dict = evalInfo(info)
         new_obs, reward_delta = parseInfo(info_dict)
+        if reward is None:
+            print("NONE", action, obs, reward, done, info)
+        reward = reward or 0
         if abs(reward + reward_delta) > 5:
             print(new_obs, reward + reward_delta)
 

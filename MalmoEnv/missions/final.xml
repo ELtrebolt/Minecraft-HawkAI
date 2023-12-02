@@ -15,10 +15,10 @@
     <ServerHandlers>
         <FlatWorldGenerator generatorString="3;7,56*35:9,36;,biome_1" forceReset="true"/>
         <DrawingDecorator>
-            <DrawEntity x="15" y="57" z="-6" yaw="270" type="Creeper" />
+            <DrawEntity x="8" y="57" z="1" yaw="270" type="Creeper" />
         </DrawingDecorator>
 
-        <ServerQuitFromTimeUp timeLimitMs="8000"/>
+        <ServerQuitFromTimeUp timeLimitMs="10000"/>
         <ServerQuitWhenAnyAgentFinishes/>
     </ServerHandlers>
     </ServerSection>
@@ -60,7 +60,7 @@
             <Height>1000</Height>
         </VideoProducer>
 
-        <ContinuousMovementCommands turnSpeedDegs="180">
+        <ContinuousMovementCommands turnSpeedDegs="90">
         </ContinuousMovementCommands>
 
     </AgentHandlers>

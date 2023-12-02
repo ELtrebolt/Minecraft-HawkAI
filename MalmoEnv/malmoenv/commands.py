@@ -105,6 +105,7 @@ class CommandParser:
                 if verb in {"move", "strafe", "pitch", "turn"}:
                     actions.append(verb + " 1")
                     actions.append(verb + " -1")
+                    actions.append(verb + " 0")
                 elif verb in {"crouch", "jump", "attack", "use"}:
                     actions.append(verb + " 1")
                     actions.append(verb + " 0")
