@@ -6,18 +6,9 @@ import numpy as np
 import math
 
 from malmoenv.core import ActionSpace
-from info_parser import InfoParser
 
-AGENT_INIT = (15, 57, 0, 90, 0)
-CREEPER_INIT = (15, 57, -6, 0)
-TURN_SLEEP_TIME = 0.15 / 2
-BOW_SLEEP_TIME = 0.35 / 2
-BOW_COOLDOWN_TIME = 0.1 / 2
-DEFAULT_YAW = 90
-DEFAULT_PITCH = 0
-YAW_DELTA = 8
-PITCH_DELTA = 3
-LOGGING = True
+from .info_parser import InfoParser
+from .constants import *
 
 
 class CustomObservationSpace(gym.spaces.Box):

@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from custom_env import AGENT_INIT, CREEPER_INIT, LOGGING
+from .constants import AGENT_INIT, CREEPER_INIT, LOGGING
 
 
 class InfoParser:
@@ -44,7 +44,7 @@ class InfoParser:
                         last_arrow_dis = math.sqrt((math.pow((creeperx - i['x']), 2) + math.pow((creeperz - i['z']), 2)))
                         if LOGGING:
                             print("DISTANCE ", last_arrow_dis)
-                        reward -= (last_arrow_dis ** 2) / 3 - 2
+                        reward -= (last_arrow_dis ** 2) / 3 - 3
                         self.prev_arrow_id = i['id']
             # if 'IsAlive' in info:
             #     isAlive = info['IsAlive']
