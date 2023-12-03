@@ -6,7 +6,7 @@ import numpy as np
 import math
 
 from malmoenv.core import ActionSpace
-
+from info_parser import InfoParser
 
 AGENT_INIT = (15, 57, 0, 90, 0)
 CREEPER_INIT = (15, 57, -6, 0)
@@ -17,55 +17,7 @@ DEFAULT_YAW = 90
 DEFAULT_PITCH = 0
 YAW_DELTA = 8
 PITCH_DELTA = 3
-LOGGING = False
-
-def evalInfo(info):
-    if info:
-        return eval(info.replace('false', 'False').replace('true', 'True'))
-    else:
-        return {}
-
-def parseInfo(info):
-    agentx, agenty, agentz, agentyaw, agentpitch = AGENT_INIT
-    creeperx, creepery, creeperz, creeperyaw = CREEPER_INIT
-    reward = 0
-
-    if info:
-        if 'LineOfSight' in info and info['LineOfSight']['type'] == 'Creeper':
-            reward += 130
-
-        creeperAlive = False
-        for i in info['entities']:
-            if i['name'] == 'Creeper':
-                creeperAlive = True
-                creeperx = i['x']
-                creepery = i['y']
-                creeperz = i['z']
-                creeperyaw = i['yaw']
-            elif i['name'] == 'MalmoTutorialBot':
-                agentx = i['x']
-                agenty = i['y']
-                agentz = i['z']
-                agentyaw = i['yaw']
-                agentpitch = i['pitch']
-            elif i == info['entities'][-1] and i['name'] == 'Arrow':
-                if i["y"] < 57.3:
-                    last_arrow_dis = math.sqrt( ( math.pow((creeperx - i['x']),2) + math.pow((creeperz - i['z']),2) ) )
-                    if LOGGING:
-                        print("DISTANCE ", last_arrow_dis)
-                    reward -= last_arrow_dis * 4
-        # if 'IsAlive' in info:
-        #     isAlive = info['IsAlive']
-        # if 'DamageDealt' in info:
-        #     damageDealt = info['DamageDealt']
-        if 'DamageTaken' in info:
-            damageTaken = info['DamageTaken']
-            if damageTaken > 0:
-                reward -= 100
-
-    state = np.array([agentx - creeperx, agenty - creepery, agentz - creeperz, agentyaw, agentpitch], np.float64)
-
-    return state, reward
+LOGGING = True
 
 
 class CustomObservationSpace(gym.spaces.Box):
@@ -83,6 +35,7 @@ class CustomEnv(malmoenv.core.Env):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._reset_yaw_pitch()
+        self.info_parser = InfoParser()
 
     def _reset_yaw_pitch(self):
         self.pitch = DEFAULT_PITCH
@@ -113,19 +66,19 @@ class CustomEnv(malmoenv.core.Env):
                 time.sleep(BOW_SLEEP_TIME)
                 obs, reward, done, info = super().step("use 0")
             if not done:
-                time.sleep(BOW_COOLDOWN_TIME)
                 obs, reward, done, info = super().step("turn 0")
+                time.sleep(BOW_COOLDOWN_TIME)
                 while not done and not info:
                     obs, reward, done, info = super().step("turn 0")
-                e_info = evalInfo(info)
+                e_info = self.info_parser.evalInfo(info)
                 while not done and (i := e_info["entities"][-1])["name"] == "Arrow" and not (i["y"] < 57.3):
                     # print('looping', i)
                     obs, reward, done, info = super().step("turn 0")
                     while not done and not info:
                         obs, reward, done, info = super().step("turn 0")
-                    e_info = evalInfo(info)
+                    e_info = self.info_parser.evalInfo(info)
 
-                reward -= 40  # penalty for firing arrow
+                # reward -= 40  # penalty for firing arrow
         elif command == "wait":
             obs, reward, done, info = super().step("turn 0")
 
@@ -134,12 +87,12 @@ class CustomEnv(malmoenv.core.Env):
     def step(self, action):
         obs, reward, done, info = self._execute_action(action)
 
-        info_dict = evalInfo(info)
-        new_obs, reward_delta = parseInfo(info_dict)
+        info_dict = self.info_parser.evalInfo(info)
+        new_obs, reward_delta = self.info_parser.parseInfo(info_dict)
         if reward is None and LOGGING:
             print("NONE", action, obs, reward, done, info)
         reward = reward or 0
-        if LOGGING and abs(reward + reward_delta) > 30:
+        if LOGGING and abs(reward + reward_delta) > 5:
             print(new_obs, reward + reward_delta)
 
         return new_obs, reward + reward_delta, False, done, info_dict

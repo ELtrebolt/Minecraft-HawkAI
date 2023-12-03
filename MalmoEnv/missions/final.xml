@@ -6,7 +6,7 @@
 
     <ModSettings>
         <MsPerTick> 25 </MsPerTick>
-        <PrioritiseOffscreenRendering>true</PrioritiseOffscreenRendering>
+        <PrioritiseOffscreenRendering>false</PrioritiseOffscreenRendering>
     </ModSettings>
     
     <ServerSection>
@@ -45,14 +45,14 @@
         <ObservationFromRay/>
 
 
-        <RewardForSendingCommand reward="-0.5" />
+<!--        <RewardForSendingCommand reward="-0.5" />-->
         <RewardForDamagingEntity>
             <Mob type ="Creeper" reward="500"/>
         </RewardForDamagingEntity>
 <!--        <RewardForDiscardingItem>-->
 <!--            <Item reward="-2" type="arrow"/>-->
 <!--        </RewardForDiscardingItem>-->
-        <RewardForTimeTaken delta="-0.25" initialReward="0" density="PER_TICK"/>
+<!--        <RewardForTimeTaken delta="-0.25" initialReward="0" density="PER_TICK"/>-->
 
 
         <ChatCommands />

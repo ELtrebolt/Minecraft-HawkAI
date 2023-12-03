@@ -56,6 +56,24 @@ if __name__ == '__main__':
     number_of_agents = len(mission.findall('{http://ProjectMalmo.microsoft.com}AgentSection'))
     print("number of agents: " + str(number_of_agents))
 
+    def eval_model(model, env):
+        obs, info = env.reset()
+        num_episodes = 5
+        cur = 0
+        while True:
+            action, _states = model.predict(obs)
+            print(action, _states)
+            obs, reward, terminated, truncated, info = env.step(action)
+            print(obs, reward)
+            if terminated or truncated:
+                cur += 1
+                if cur > num_episodes:
+                    break
+                obs, info = env.reset()
+
+    def load_saved_model(path, env):
+        return DQN.load(path, env=env)
+
     def run(role):
         ACTIONS = ['turn', 'pitch', 'use']
         env = CustomEnv()
@@ -68,6 +86,9 @@ if __name__ == '__main__':
 
         def log(message):
             print('[' + str(role) + '] ' + message)
+
+        # saved_model = load_saved_model("./logs/rl_model_300000_steps.zip", env)
+        # eval_model(saved_model, env)
 
         tmp_path = "./logs/"
         # set up logger
@@ -85,27 +106,14 @@ if __name__ == '__main__':
         )
 
         model.learn(total_timesteps=300000, callback=checkpoint_callback, tb_log_name='first_run')
-        model.save("dqn_overnight1")
+        model.save("dqn_day2")
         print('--- DONE TRAINING ---')
+
         for i in range(10):
             print('Testing in ' + str(10 - i))
             time.sleep(1)
 
-        obs, info = env.reset()
-        num_episodes = 5
-        cur = 0
-        while True:
-            action, _states = model.predict(obs)
-            print(action, _states)
-            obs, reward, terminated, truncated, info = env.step(action)
-            print(obs, reward)
-            if reward > 50:
-                model.save_replay_buffer(tmp_path + 'test.pkl')
-            if terminated or truncated:
-                cur += 1
-                if cur > num_episodes:
-                    break
-                obs, info = env.reset()
+        eval_model(model, env)
 
                 # for r in range(args.episodes):
         #     log("reset " + str(r))
