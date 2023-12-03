@@ -3,11 +3,6 @@
     <About>
     <Summary>Hello world!</Summary>
     </About>
-
-    <ModSettings>
-        <MsPerTick> 25 </MsPerTick>
-        <PrioritiseOffscreenRendering>false</PrioritiseOffscreenRendering>
-    </ModSettings>
     
     <ServerSection>
     <ServerInitialConditions>
@@ -18,12 +13,8 @@
         <Weather>clear</Weather>
     </ServerInitialConditions>
     <ServerHandlers>
-        <FlatWorldGenerator generatorString="3;7,56*35:9,36;,biome_1" forceReset="true"/>
-        <DrawingDecorator>
-            <DrawEntity x="8" y="57" z="1" yaw="270" type="Creeper" />
-        </DrawingDecorator>
-
-        <ServerQuitFromTimeUp timeLimitMs="15000"/>
+        <FlatWorldGenerator generatorString="3;7,56*35:9,36;,biome_1"/>
+        <ServerQuitFromTimeUp timeLimitMs="1000"/>
         <ServerQuitWhenAnyAgentFinishes/>
     </ServerHandlers>
     </ServerSection>
@@ -31,7 +22,7 @@
     <AgentSection mode="Survival">
     <Name>MalmoTutorialBot</Name>
     <AgentStart>
-        <Placement x="15" y="57" z="0" yaw="90" pitch="0"/>
+        <Placement x="15" y="57" z="0" yaw="90"/>
         <Inventory>
             <InventoryItem slot="0" type="bow"/>
             <InventoryItem slot="1" type="arrow" quantity="10"/>
@@ -39,18 +30,18 @@
     </AgentStart>
     <AgentHandlers>
         <ObservationFromNearbyEntities>
-            <Range name="entities" xrange="80" yrange="80" zrange="80"/>
+            <Range name="entities" xrange="60" yrange="40" zrange="60"/>
         </ObservationFromNearbyEntities>
-        <ObservationFromFullStats/>
+        <!-- <ObservationFromFullStats/> -->
         <ObservationFromRay/>
 
 
-        <!-- <RewardForSendingCommand reward="-0.02" /> -->
+        <RewardForSendingCommand reward="-0.02" />
         <RewardForDamagingEntity>
-            <Mob type ="Creeper" reward="1000"/>
+            <Mob type ="Creeper" reward="100"/>
         </RewardForDamagingEntity>
         <RewardForDiscardingItem>
-            <Item reward="-5" type="arrow"/>
+            <Item reward="-2" type="arrow"/>
         </RewardForDiscardingItem>
         <RewardForTimeTaken delta="-1" initialReward="0" density="PER_TICK"/>
 
@@ -59,14 +50,18 @@
 
         <MissionQuitCommands quitDescription="give_up"/>
 
+        <ContinuousMovementCommands turnSpeedDegs="15"/>
 
         <VideoProducer want_depth="false">
             <Width>1000</Width>
             <Height>1000</Height>
         </VideoProducer>
 
-        <ContinuousMovementCommands turnSpeedDegs="90">
-        </ContinuousMovementCommands>
+        <!-- <DiscreteMovementCommands>
+            <ModifierList type="deny-list">
+                <command>use</command>
+            </ModifierList>
+        </DiscreteMovementCommands> -->
 
     </AgentHandlers>
     </AgentSection>

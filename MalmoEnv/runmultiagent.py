@@ -31,6 +31,7 @@ import math
 from stable_baselines3 import DQN
 
 from custom_env.custom_env import CustomEnv
+from stable_baselines3.common.logger import configure
 
 if __name__ == '__main__':
 
@@ -68,14 +69,39 @@ if __name__ == '__main__':
         def log(message):
             print('[' + str(role) + '] ' + message)
 
-        model = DQN("MlpPolicy", env)
-        model.learn(total_timesteps=100000)
+        tmp_path = "./logs/"
+
+        try:
+            model = DQN.load('model2', env=env)
+        except:
+            new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
+
+            model = DQN("MlpPolicy", env, verbose=1, tensorboard_log=tmp_path, learning_rate=0.01)
+            model.set_logger(new_logger)
+
+            for i in range(15):
+                model.learn(total_timesteps=10000, reset_num_timesteps=False)
+                model.save('model2')
+
+        print('--- DONE TRAINING ---')
+        for i in range(10):
+            print('Testing in ' + str(10-i))
+            time.sleep(1)
 
         obs, info = env.reset()
+        num_episodes = 5
+        cur = 0
         while True:
-            action, _states = model.predict(obs, deterministic=True)
+            action, _states = model.predict(obs)
+            print(action, _states)
             obs, reward, terminated, truncated, info = env.step(action)
+            print(obs, reward)
+            if reward > 50:
+                model.save_replay_buffer(tmp_path + 'test.pkl')
             if terminated or truncated:
+                cur += 1
+                if cur > num_episodes:
+                    break
                 obs, info = env.reset()
 
         # for r in range(args.episodes):
