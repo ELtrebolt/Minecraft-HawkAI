@@ -18,7 +18,7 @@
             <DrawEntity x="8" y="57" z="1" yaw="270" type="Creeper" />
         </DrawingDecorator>
 
-        <ServerQuitFromTimeUp timeLimitMs="10000"/>
+        <ServerQuitFromTimeUp timeLimitMs="15000"/>
         <ServerQuitWhenAnyAgentFinishes/>
     </ServerHandlers>
     </ServerSection>
@@ -47,7 +47,7 @@
         <RewardForDiscardingItem>
             <Item reward="-2" type="arrow"/>
         </RewardForDiscardingItem>
-        <RewardForTimeTaken delta="-1" initialReward="0" density="PER_TICK"/>
+        <RewardForTimeTaken delta="-0.5" initialReward="0" density="PER_TICK"/>
 
 
         <ChatCommands />

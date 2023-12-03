@@ -85,9 +85,9 @@ class CustomEnv(malmoenv.core.Env):
             if self.action_space[action].startswith("pitch"):
                 time.sleep(sleep_time)
                 obs, reward, done, info = super().step(self.action_space.actions.index("pitch 0"))
-            if self.action_space[action] == "use 0":
-                print("sleeping")
-                time.sleep(1)
+            # if self.action_space[action] == "use 0":
+            #     print("sleeping")
+            #     time.sleep(1)
         info_dict = evalInfo(info)
         new_obs, reward_delta = parseInfo(info_dict)
         if reward is None:
