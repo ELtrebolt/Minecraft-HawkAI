@@ -7,9 +7,12 @@ import math
 
 from malmoenv.core import ActionSpace
 
+
 AGENT_INIT = (15, 57, 0, 90, 0)
 CREEPER_INIT = (15, 57, -6, 0)
-
+TURN_SLEEP_TIME = 0.15
+BOW_SLEEP_TIME = 0.35
+BOW_COOLDOWN_TIME = 0.1
 
 def evalInfo(info):
     if info:
@@ -24,7 +27,7 @@ def parseInfo(info):
 
     if info:
         if 'LineOfSight' in info and info['LineOfSight']['type'] == 'Creeper':
-            reward += 10
+            reward += 130
 
         creeperAlive = False
         for i in info['entities']:
@@ -41,10 +44,10 @@ def parseInfo(info):
                 agentyaw = i['yaw']
                 agentpitch = i['pitch']
             elif i == info['entities'][-1] and i['name'] == 'Arrow':
-                if abs(i['motionX']) < 0.3 and abs(i['motionY']) < 0.3 and abs(i['motionZ']) < 0.3:
+                if i["y"] < 57.3:
                     last_arrow_dis = math.sqrt( ( math.pow((creeperx - i['x']),2) + math.pow((creepery - i['y']),2) ) )
                     print("DISTANCE ", last_arrow_dis)
-                    reward -= last_arrow_dis
+                    reward -= last_arrow_dis * 4
         # if 'IsAlive' in info:
         #     isAlive = info['IsAlive']
         # if 'DamageDealt' in info:
@@ -54,7 +57,7 @@ def parseInfo(info):
             if damageTaken > 0:
                 reward -= 100
 
-    state = [agentx - creeperx, agenty - creepery, agentz - creeperz, agentyaw, agentpitch]
+    state = np.array([agentx - creeperx, agenty - creepery, agentz - creeperz, agentyaw, agentpitch], np.float64)
 
     return state, reward
 
@@ -66,11 +69,16 @@ class CustomObservationSpace(gym.spaces.Box):
     def __init__(self):
         # deltax, deltay, deltaz, agentyaw, agentpitch
         gym.spaces.Box.__init__(self,
-                                -1000.0, high=1000.0,
+                                low=np.array([-100, -100, -100, -180, -90]), high=np.array([100, 100, 100, 180, 90]),
                                 shape=(5,), dtype=np.float64)
 
 
 class CustomEnv(malmoenv.core.Env):
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     self.pitch = 0
+    #     self.yaw = 90
+
     def init(self, *args, **kwargs):
         super().init(*args, **kwargs)
         self.observation_space = CustomObservationSpace()
@@ -78,7 +86,7 @@ class CustomEnv(malmoenv.core.Env):
         self.action_space = ActionSpace(actions)
 
     def _execute_action(self, action: int):
-        SLEEP_TIME = 0.15
+
         command = self.action_space[action]
         if " " in command:
             command, val = command.split()
@@ -87,18 +95,32 @@ class CustomEnv(malmoenv.core.Env):
         if command == "turn":
             obs, reward, done, info = super().step(action)
             if not done:
-                time.sleep(SLEEP_TIME)
+                time.sleep(TURN_SLEEP_TIME)
                 obs, reward, done, info = super().step("turn 0")
         elif command == "pitch":
             obs, reward, done, info = super().step(action)
             if not done:
-                time.sleep(SLEEP_TIME)
+                time.sleep(TURN_SLEEP_TIME)
                 obs, reward, done, info = super().step("pitch 0")
         elif command == "use":
             obs, reward, done, info = super().step("use 1")
             if not done:
-                time.sleep(0.35)
+                time.sleep(BOW_SLEEP_TIME)
                 obs, reward, done, info = super().step("use 0")
+            if not done:
+                time.sleep(BOW_COOLDOWN_TIME)
+                obs, reward, done, info = super().step("turn 0")
+                while not done and not info:
+                    obs, reward, done, info = super().step("turn 0")
+                e_info = evalInfo(info)
+                while not done and (i := e_info["entities"][-1])["name"] == "Arrow" and not (i["y"] < 57.3):
+                    # print('looping', i)
+                    obs, reward, done, info = super().step("turn 0")
+                    while not done and not info:
+                        obs, reward, done, info = super().step("turn 0")
+                    e_info = evalInfo(info)
+
+            reward -= 100  # penalty for firing arrow
         elif command == "wait":
             obs, reward, done, info = super().step("turn 0")
 
@@ -112,7 +134,7 @@ class CustomEnv(malmoenv.core.Env):
         if reward is None:
             print("NONE", action, obs, reward, done, info)
         reward = reward or 0
-        if abs(reward + reward_delta) > 5:
+        if abs(reward + reward_delta) > 30:
             print(new_obs, reward + reward_delta)
 
         return new_obs, reward + reward_delta, False, done, info_dict
@@ -120,4 +142,4 @@ class CustomEnv(malmoenv.core.Env):
     def reset(self, seed=None, options=None):
         super().reset()
 
-        return AGENT_INIT, {}
+        return np.array(AGENT_INIT, np.float64), {}

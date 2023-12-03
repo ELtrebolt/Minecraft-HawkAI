@@ -3,6 +3,11 @@
     <About>
     <Summary>Hello world!</Summary>
     </About>
+
+    <ModSettings>
+        <MsPerTick> 50 </MsPerTick>
+        <PrioritiseOffscreenRendering>false</PrioritiseOffscreenRendering>
+    </ModSettings>
     
     <ServerSection>
     <ServerInitialConditions>
@@ -40,13 +45,13 @@
         <ObservationFromRay/>
 
 
-        <RewardForSendingCommand reward="-0.02" />
+        <RewardForSendingCommand reward="-0.5" />
         <RewardForDamagingEntity>
-            <Mob type ="Creeper" reward="100"/>
+            <Mob type ="Creeper" reward="500"/>
         </RewardForDamagingEntity>
-        <RewardForDiscardingItem>
-            <Item reward="-2" type="arrow"/>
-        </RewardForDiscardingItem>
+<!--        <RewardForDiscardingItem>-->
+<!--            <Item reward="-2" type="arrow"/>-->
+<!--        </RewardForDiscardingItem>-->
         <RewardForTimeTaken delta="-0.25" initialReward="0" density="PER_TICK"/>
 
 
