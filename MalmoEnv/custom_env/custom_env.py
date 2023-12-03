@@ -5,6 +5,8 @@ import gym
 import numpy as np
 import math
 
+from malmoenv.core import ActionSpace
+
 AGENT_INIT = (15, 57, 0, 90, 0)
 CREEPER_INIT = (15, 57, -6, 0)
 
@@ -71,23 +73,40 @@ class CustomObservationSpace(gym.spaces.Box):
 class CustomEnv(malmoenv.core.Env):
     def init(self, *args, **kwargs):
         super().init(*args, **kwargs)
-
         self.observation_space = CustomObservationSpace()
+        actions = ["turn 1", "turn -1", "pitch 1", "pitch -1", "use 1", "wait"]
+        self.action_space = ActionSpace(actions)
+
+    def _execute_action(self, action: int):
+        SLEEP_TIME = 0.15
+        command = self.action_space[action]
+        if " " in command:
+            command, val = command.split()
+        obs, reward, done, info = AGENT_INIT, 0, False, {}
+
+        if command == "turn":
+            _, _, done, _ = super().step(action)
+            if not done:
+                time.sleep(SLEEP_TIME)
+                obs, reward, done, info = super().step("turn 0")
+        elif command == "pitch":
+            _, _, done, _ = super().step(action)
+            if not done:
+                time.sleep(SLEEP_TIME)
+                obs, reward, done, info = super().step("pitch 0")
+        elif command == "use":
+            _, _, done, _ = super().step("use 1")
+            if not done:
+                time.sleep(0.5)
+                obs, reward, done, info = super().step("use 0")
+        elif command == "wait":
+            obs, reward, done, info = super().step("turn 0")
+
+        return obs, reward, done, info
 
     def step(self, action):
-        obs, reward, done, info = super().step(action)
-        action_str, val = self.action_space[action].split()
-        sleep_time = 0.15
-        if not done:
-            if self.action_space[action].startswith("turn"):
-                time.sleep(sleep_time)
-                obs, reward, done, info = super().step(self.action_space.actions.index("turn 0"))
-            if self.action_space[action].startswith("pitch"):
-                time.sleep(sleep_time)
-                obs, reward, done, info = super().step(self.action_space.actions.index("pitch 0"))
-            # if self.action_space[action] == "use 0":
-            #     print("sleeping")
-            #     time.sleep(1)
+        obs, reward, done, info = self._execute_action(action)
+
         info_dict = evalInfo(info)
         new_obs, reward_delta = parseInfo(info_dict)
         if reward is None:

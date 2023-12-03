@@ -47,7 +47,7 @@
         <RewardForDiscardingItem>
             <Item reward="-2" type="arrow"/>
         </RewardForDiscardingItem>
-        <RewardForTimeTaken delta="-0.5" initialReward="0" density="PER_TICK"/>
+        <RewardForTimeTaken delta="-0.25" initialReward="0" density="PER_TICK"/>
 
 
         <ChatCommands />
