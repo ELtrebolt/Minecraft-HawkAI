@@ -15,7 +15,7 @@
     <ServerHandlers>
         <FlatWorldGenerator generatorString="3;7,56*35:9,36;,biome_1" forceReset="true"/>
         <DrawingDecorator>
-            <DrawEntity x="8" y="57" z="1" yaw="270" type="Creeper" />
+            <DrawEntity x="9" y="57" z="5" yaw="270" type="Creeper" />
         </DrawingDecorator>
 
         <ServerQuitFromTimeUp timeLimitMs="15000"/>

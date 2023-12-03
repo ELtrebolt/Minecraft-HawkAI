@@ -28,7 +28,7 @@ import threading
 import numpy as np
 from collections import defaultdict
 import math
-from stable_baselines3 import DQN
+from stable_baselines3 import DQN, A2C, PPO
 
 from custom_env.custom_env import CustomEnv
 

@@ -66,8 +66,8 @@ class CustomObservationSpace(gym.spaces.Box):
     def __init__(self):
         # deltax, deltay, deltaz, agentyaw, agentpitch
         gym.spaces.Box.__init__(self,
-                                low=np.float64('-inf'), high=np.float64('inf'),
-                                shape=(1, 5), dtype=np.float64)
+                                -1000.0, high=1000.0,
+                                shape=(5,), dtype=np.float64)
 
 
 class CustomEnv(malmoenv.core.Env):
@@ -85,19 +85,19 @@ class CustomEnv(malmoenv.core.Env):
         obs, reward, done, info = AGENT_INIT, 0, False, {}
 
         if command == "turn":
-            _, _, done, _ = super().step(action)
+            obs, reward, done, info = super().step(action)
             if not done:
                 time.sleep(SLEEP_TIME)
                 obs, reward, done, info = super().step("turn 0")
         elif command == "pitch":
-            _, _, done, _ = super().step(action)
+            obs, reward, done, info = super().step(action)
             if not done:
                 time.sleep(SLEEP_TIME)
                 obs, reward, done, info = super().step("pitch 0")
         elif command == "use":
-            _, _, done, _ = super().step("use 1")
+            obs, reward, done, info = super().step("use 1")
             if not done:
-                time.sleep(0.5)
+                time.sleep(0.35)
                 obs, reward, done, info = super().step("use 0")
         elif command == "wait":
             obs, reward, done, info = super().step("turn 0")
@@ -120,4 +120,4 @@ class CustomEnv(malmoenv.core.Env):
     def reset(self, seed=None, options=None):
         super().reset()
 
-        return np.array(AGENT_INIT, dtype=np.float64), {}
+        return AGENT_INIT, {}
