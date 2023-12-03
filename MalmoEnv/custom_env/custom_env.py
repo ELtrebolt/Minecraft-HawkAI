@@ -10,9 +10,14 @@ from malmoenv.core import ActionSpace
 
 AGENT_INIT = (15, 57, 0, 90, 0)
 CREEPER_INIT = (15, 57, -6, 0)
-TURN_SLEEP_TIME = 0.15
-BOW_SLEEP_TIME = 0.35
-BOW_COOLDOWN_TIME = 0.1
+TURN_SLEEP_TIME = 0.15 / 2
+BOW_SLEEP_TIME = 0.35 / 2
+BOW_COOLDOWN_TIME = 0.1 / 2
+DEFAULT_YAW = 90
+DEFAULT_PITCH = 0
+YAW_DELTA = 8
+PITCH_DELTA = 3
+LOGGING = False
 
 def evalInfo(info):
     if info:
@@ -45,8 +50,9 @@ def parseInfo(info):
                 agentpitch = i['pitch']
             elif i == info['entities'][-1] and i['name'] == 'Arrow':
                 if i["y"] < 57.3:
-                    last_arrow_dis = math.sqrt( ( math.pow((creeperx - i['x']),2) + math.pow((creepery - i['y']),2) ) )
-                    print("DISTANCE ", last_arrow_dis)
+                    last_arrow_dis = math.sqrt( ( math.pow((creeperx - i['x']),2) + math.pow((creeperz - i['z']),2) ) )
+                    if LOGGING:
+                        print("DISTANCE ", last_arrow_dis)
                     reward -= last_arrow_dis * 4
         # if 'IsAlive' in info:
         #     isAlive = info['IsAlive']
@@ -74,10 +80,13 @@ class CustomObservationSpace(gym.spaces.Box):
 
 
 class CustomEnv(malmoenv.core.Env):
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.pitch = 0
-    #     self.yaw = 90
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._reset_yaw_pitch()
+
+    def _reset_yaw_pitch(self):
+        self.pitch = DEFAULT_PITCH
+        self.yaw = DEFAULT_YAW
 
     def init(self, *args, **kwargs):
         super().init(*args, **kwargs)
@@ -93,15 +102,11 @@ class CustomEnv(malmoenv.core.Env):
         obs, reward, done, info = AGENT_INIT, 0, False, {}
 
         if command == "turn":
-            obs, reward, done, info = super().step(action)
-            if not done:
-                time.sleep(TURN_SLEEP_TIME)
-                obs, reward, done, info = super().step("turn 0")
+            self.yaw += YAW_DELTA * int(val)
+            obs, reward, done, info = super().step(f"setYaw {self.yaw}")
         elif command == "pitch":
-            obs, reward, done, info = super().step(action)
-            if not done:
-                time.sleep(TURN_SLEEP_TIME)
-                obs, reward, done, info = super().step("pitch 0")
+            self.pitch += PITCH_DELTA * int(val)
+            obs, reward, done, info = super().step(f"setPitch {self.pitch}")
         elif command == "use":
             obs, reward, done, info = super().step("use 1")
             if not done:
@@ -120,7 +125,7 @@ class CustomEnv(malmoenv.core.Env):
                         obs, reward, done, info = super().step("turn 0")
                     e_info = evalInfo(info)
 
-            reward -= 100  # penalty for firing arrow
+                reward -= 40  # penalty for firing arrow
         elif command == "wait":
             obs, reward, done, info = super().step("turn 0")
 
@@ -131,15 +136,15 @@ class CustomEnv(malmoenv.core.Env):
 
         info_dict = evalInfo(info)
         new_obs, reward_delta = parseInfo(info_dict)
-        if reward is None:
+        if reward is None and LOGGING:
             print("NONE", action, obs, reward, done, info)
         reward = reward or 0
-        if abs(reward + reward_delta) > 30:
+        if LOGGING and abs(reward + reward_delta) > 30:
             print(new_obs, reward + reward_delta)
 
         return new_obs, reward + reward_delta, False, done, info_dict
 
     def reset(self, seed=None, options=None):
         super().reset()
-
+        self._reset_yaw_pitch()
         return np.array(AGENT_INIT, np.float64), {}

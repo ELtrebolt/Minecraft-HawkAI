@@ -30,7 +30,7 @@ from collections import defaultdict
 import math
 from stable_baselines3 import DQN, A2C, PPO
 from stable_baselines3.common.logger import configure
-
+from stable_baselines3.common.callbacks import CheckpointCallback
 from custom_env.custom_env import CustomEnv
 
 if __name__ == '__main__':
@@ -75,9 +75,17 @@ if __name__ == '__main__':
 
         model = DQN("MlpPolicy", env, verbose=1, tensorboard_log=tmp_path)
         model.set_logger(new_logger)
-        model.learn(total_timesteps=10000, tb_log_name='first_run')
-        model.save("dqn_overnight1")
 
+        checkpoint_callback = CheckpointCallback(
+            save_freq=10000,
+            save_path="./logs/",
+            name_prefix="rl_model",
+            save_replay_buffer=True,
+            save_vecnormalize=True,
+        )
+
+        model.learn(total_timesteps=300000, callback=checkpoint_callback, tb_log_name='first_run')
+        model.save("dqn_overnight1")
         print('--- DONE TRAINING ---')
         for i in range(10):
             print('Testing in ' + str(10 - i))
