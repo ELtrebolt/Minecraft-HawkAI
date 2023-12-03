@@ -35,8 +35,7 @@ class CustomEnv(malmoenv.core.Env):
     def init(self, *args, **kwargs):
         super().init(*args, **kwargs)
         self.observation_space = CustomObservationSpace()
-        actions = ["turn 1", "turn -1", "pitch 1", "pitch -1", "use 1", "wait"]
-        self.action_space = ActionSpace(actions)
+        self.action_space = ActionSpace(ACTIONS)
 
     def _execute_action(self, action: int):
 

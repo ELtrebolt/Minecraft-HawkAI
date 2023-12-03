@@ -30,7 +30,7 @@ from collections import defaultdict
 import math
 from stable_baselines3 import DQN, A2C, PPO
 from stable_baselines3.common.logger import configure
-from stable_baselines3.common.callbacks import CheckpointCallback
+from stable_baselines3.common.callbacks import CheckpointCallback, EvalCallback, CallbackList
 from custom_env.custom_env import CustomEnv
 
 if __name__ == '__main__':
@@ -105,7 +105,14 @@ if __name__ == '__main__':
             save_vecnormalize=True,
         )
 
-        model.learn(total_timesteps=300000, callback=checkpoint_callback, tb_log_name='first_run')
+        # Use deterministic actions for evaluation
+        eval_callback = EvalCallback(env, best_model_save_path="./eval_logs/",
+                                     log_path="./eval_logs/", eval_freq=5000,
+                                     deterministic=True, render=True, verbose=1)
+
+        callbacks = CallbackList([eval_callback, checkpoint_callback])
+
+        model.learn(total_timesteps=300000, callback=callbacks, tb_log_name='first_run')
         model.save("dqn_day2")
         print('--- DONE TRAINING ---')
 
