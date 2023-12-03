@@ -61,8 +61,8 @@
 
 
         <VideoProducer want_depth="false">
-            <Width>1000</Width>
-            <Height>1000</Height>
+            <Width>150</Width>
+            <Height>150</Height>
         </VideoProducer>
 
         <ContinuousMovementCommands turnSpeedDegs="90">

@@ -18,6 +18,8 @@
 # ------------------------------------------------------------------------------------------------
 import random
 
+from stable_baselines3.common.env_checker import check_env
+
 import malmoenv
 import argparse
 from pathlib import Path
@@ -94,7 +96,7 @@ if __name__ == '__main__':
         # set up logger
         new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
 
-        model = DQN("MlpPolicy", env, verbose=1, tensorboard_log=tmp_path)
+        model = DQN("CnnPolicy", env, buffer_size=30000,verbose=1, tensorboard_log=tmp_path)
         model.set_logger(new_logger)
 
         checkpoint_callback = CheckpointCallback(

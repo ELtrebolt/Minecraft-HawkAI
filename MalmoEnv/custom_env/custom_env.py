@@ -5,7 +5,7 @@ import gym
 import numpy as np
 import math
 
-from malmoenv.core import ActionSpace
+from malmoenv.core import ActionSpace, Env
 
 from .info_parser import InfoParser
 from .constants import *
@@ -22,7 +22,7 @@ class CustomObservationSpace(gym.spaces.Box):
                                 shape=(5,), dtype=np.float64)
 
 
-class CustomEnv(malmoenv.core.Env):
+class CustomEnv(Env):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._reset_yaw_pitch()
@@ -34,7 +34,7 @@ class CustomEnv(malmoenv.core.Env):
 
     def init(self, *args, **kwargs):
         super().init(*args, **kwargs)
-        self.observation_space = CustomObservationSpace()
+        # self.observation_space = CustomObservationSpace()
         self.action_space = ActionSpace(ACTIONS)
 
     def _execute_action(self, action: int):
@@ -84,10 +84,12 @@ class CustomEnv(malmoenv.core.Env):
         reward = reward or 0
         if LOGGING and abs(reward + reward_delta) > 5:
             print(new_obs, reward + reward_delta)
-
-        return new_obs, reward + reward_delta, False, done, info_dict
+        if obs.size <= 0:
+            obs = np.zeros((self.height, self.width, self.depth), dtype=np.uint8)
+        return np.reshape(obs, (150, 150, 3)), reward + reward_delta, False, done, info_dict
 
     def reset(self, seed=None, options=None):
-        super().reset()
+        obs = super().reset()
         self._reset_yaw_pitch()
-        return np.array(AGENT_INIT, np.float64), {}
+        # return np.array(AGENT_INIT, np.float64), {}
+        return np.reshape(obs, (150, 150, 3)), {}
