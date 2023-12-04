@@ -70,7 +70,7 @@ class CustomEnv(malmoenv.core.Env):
                     while not done and not info:
                         obs, reward, done, info = super().step("turn 0")
 
-                # reward -= 40  # penalty for firing arrow
+                reward -= 1  # penalty for firing arrow
         elif command == "wait":
             obs, reward, done, info = super().step("turn 0")
 
