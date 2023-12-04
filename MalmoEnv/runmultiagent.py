@@ -96,7 +96,7 @@ if __name__ == '__main__':
         # set up logger
         new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
 
-        model = DQN("CnnPolicy", env, buffer_size=30000,verbose=1, tensorboard_log=tmp_path)
+        model = DQN("CnnPolicy", env, buffer_size=25000,verbose=1, tensorboard_log=tmp_path)
         model.set_logger(new_logger)
 
         checkpoint_callback = CheckpointCallback(
@@ -110,7 +110,7 @@ if __name__ == '__main__':
         # Use deterministic actions for evaluation
         eval_callback = EvalCallback(env, best_model_save_path="./eval_logs/",
                                      log_path="./eval_logs/", eval_freq=5000,
-                                     deterministic=True, render=True, verbose=1)
+                                     deterministic=False, render=True, verbose=1)
 
         callbacks = CallbackList([eval_callback, checkpoint_callback])
 

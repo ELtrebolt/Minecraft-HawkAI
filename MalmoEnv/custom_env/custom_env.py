@@ -86,10 +86,10 @@ class CustomEnv(Env):
             print(new_obs, reward + reward_delta)
         if obs.size <= 0:
             obs = np.zeros((self.height, self.width, self.depth), dtype=np.uint8)
-        return np.reshape(obs, (150, 150, 3)), reward + reward_delta, False, done, info_dict
+        return np.reshape(obs, (130, 130, 3)), reward + reward_delta, False, done, info_dict
 
     def reset(self, seed=None, options=None):
         obs = super().reset()
         self._reset_yaw_pitch()
         # return np.array(AGENT_INIT, np.float64), {}
-        return np.reshape(obs, (150, 150, 3)), {}
+        return np.reshape(obs, (130, 130, 3)), {}
