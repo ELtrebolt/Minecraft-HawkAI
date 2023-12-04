@@ -5,7 +5,7 @@
     </About>
 
     <ModSettings>
-        <MsPerTick> 25 </MsPerTick>
+        <MsPerTick> 50 </MsPerTick>
         <PrioritiseOffscreenRendering>false</PrioritiseOffscreenRendering>
     </ModSettings>
     
@@ -34,7 +34,7 @@
         <Placement x="15" y="57" z="0" yaw="90" pitch="0"/>
         <Inventory>
             <InventoryItem slot="0" type="bow"/>
-            <InventoryItem slot="1" type="arrow" quantity="10"/>
+            <InventoryItem slot="1" type="arrow" quantity="64"/>
         </Inventory>
     </AgentStart>
     <AgentHandlers>
@@ -45,14 +45,14 @@
         <ObservationFromRay/>
 
 
-<!--        <RewardForSendingCommand reward="-0.5" />-->
+        <RewardForSendingCommand reward="-0.5" />
         <RewardForDamagingEntity>
-            <Mob type ="Creeper" reward="500"/>
+            <Mob type ="Creeper" reward="0"/>
         </RewardForDamagingEntity>
 <!--        <RewardForDiscardingItem>-->
 <!--            <Item reward="-2" type="arrow"/>-->
 <!--        </RewardForDiscardingItem>-->
-<!--        <RewardForTimeTaken delta="-0.25" initialReward="0" density="PER_TICK"/>-->
+        <RewardForTimeTaken delta="-0.1" initialReward="0" density="PER_TICK"/>
 
 
         <ChatCommands />
@@ -61,8 +61,8 @@
 
 
         <VideoProducer want_depth="false">
-            <Width>1000</Width>
-            <Height>1000</Height>
+            <Width>480</Width>
+            <Height>480</Height>
         </VideoProducer>
 
         <ContinuousMovementCommands turnSpeedDegs="90">

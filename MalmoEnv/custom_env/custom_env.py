@@ -53,20 +53,22 @@ class CustomEnv(malmoenv.core.Env):
         elif command == "use":
             obs, reward, done, info = super().step("use 1")
             if not done:
-                time.sleep(BOW_SLEEP_TIME)
-                obs, reward, done, info = super().step("use 0")
+                time.sleep(BOW_SLEEP_TIME)  # Charging the bow for this time duration
+                obs, reward, done, info = super().step("use 0")  # Release the bow
             if not done:
-                obs, reward, done, info = super().step("turn 0")
-                time.sleep(BOW_COOLDOWN_TIME)
-                while not done and not info:
+                # wait for arrow entity to appear
+                while not done and not self.info_parser.has_new_arrow(info):
+                    if LOGGING and ARROW_LOGGING:
+                        print('arrow appearing...')
                     obs, reward, done, info = super().step("turn 0")
-                e_info = self.info_parser.evalInfo(info)
-                while not done and (i := e_info["entities"][-1])["name"] == "Arrow" and not (i["y"] < 57.3):
-                    # print('looping', i)
+
+                # wait for arrow entity to land
+                while not done and not self.info_parser.arrow_is_landed(info):
+                    if LOGGING and ARROW_LOGGING:
+                        print('landing arrow... ')
                     obs, reward, done, info = super().step("turn 0")
                     while not done and not info:
                         obs, reward, done, info = super().step("turn 0")
-                    e_info = self.info_parser.evalInfo(info)
 
                 # reward -= 40  # penalty for firing arrow
         elif command == "wait":

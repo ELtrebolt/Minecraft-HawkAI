@@ -6,7 +6,7 @@ from .constants import AGENT_INIT, CREEPER_INIT, LOGGING
 class InfoParser:
     def __init__(self):
         self.prev_arrow_id = 0
-        self.prev_damage_dealt = 0
+        self.prev_creeper_life = 20.0
         self.prev_damage_taken = 0
 
     @staticmethod
@@ -33,6 +33,13 @@ class InfoParser:
                     creepery = i['y']
                     creeperz = i['z']
                     creeperyaw = i['yaw']
+                    if self._creeper_took_damage(i):
+                        reward += 500
+                        print('+500 DAMAGE DEALT')
+                        self.prev_creeper_life = i['life']
+                    else:
+                        self.prev_creeper_life = i['life']
+
                 elif i['name'] == 'MalmoTutorialBot':
                     agentx = i['x']
                     agenty = i['y']
@@ -41,15 +48,15 @@ class InfoParser:
                     agentpitch = i['pitch']
                 elif i == info['entities'][-1] and i['name'] == 'Arrow':
                     if i['id'] != self.prev_arrow_id and i["y"] < 57.3:
-                        last_arrow_dis = math.sqrt((math.pow((creeperx - i['x']), 2) + math.pow((creeperz - i['z']), 2)))
+                        last_arrow_dis = math.sqrt(
+                            (math.pow((creeperx - i['x']), 2) + math.pow((creeperz - i['z']), 2)))
                         if LOGGING:
                             print("DISTANCE ", last_arrow_dis)
-                        reward -= (last_arrow_dis ** 2) / 3 - 8
+                        reward -= (last_arrow_dis ** 2) / 3 - 16
                         self.prev_arrow_id = i['id']
             # if 'IsAlive' in info:
             #     isAlive = info['IsAlive']
-            # if 'DamageDealt' in info:
-            #     damageDealt = info['DamageDealt']
+
             if 'DamageTaken' in info:
                 damageTaken = info['DamageTaken']
                 if damageTaken > 0:
@@ -58,3 +65,27 @@ class InfoParser:
         state = np.array([agentx - creeperx, agenty - creepery, agentz - creeperz, agentyaw, agentpitch], np.float64)
 
         return state, reward
+
+    def damage_is_dealt(self, info):
+        if 'entities' in info:
+            for i in info['entities']:
+                if i['name'] == 'Creeper':
+                    return self._creeper_took_damage(i)
+        return False
+
+    def _creeper_took_damage(self, creeper):
+        return creeper['life'] < self.prev_creeper_life and not math.isclose(creeper['life'], self.prev_creeper_life)
+
+    def has_new_arrow(self, info_str):
+        info = self.evalInfo(info_str)
+        creeper_hit = self.damage_is_dealt(info)
+        arrow_appeared = 'entities' in info and (i := info['entities'][-1])['name'] == 'Arrow' and i[
+            'id'] != self.prev_arrow_id
+        return creeper_hit or arrow_appeared
+
+    def arrow_is_landed(self, info_str):
+        info = self.evalInfo(info_str)
+        creeper_hit = self.damage_is_dealt(info)
+        arrow_landed = 'entities' in info and (i := info["entities"][-1])["name"] == "Arrow" and i["y"] < 57.3
+
+        return creeper_hit or arrow_landed
