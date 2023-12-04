@@ -6,7 +6,7 @@
 
     <ModSettings>
         <MsPerTick> 25 </MsPerTick>
-        <PrioritiseOffscreenRendering>false</PrioritiseOffscreenRendering>
+        <PrioritiseOffscreenRendering>true</PrioritiseOffscreenRendering>
     </ModSettings>
     
     <ServerSection>
@@ -61,8 +61,8 @@
 
 
         <VideoProducer want_depth="false">
-            <Width>150</Width>
-            <Height>150</Height>
+            <Width>360</Width>
+            <Height>360</Height>
         </VideoProducer>
 
         <ContinuousMovementCommands turnSpeedDegs="90">

@@ -44,7 +44,7 @@ class InfoParser:
                         last_arrow_dis = math.sqrt((math.pow((creeperx - i['x']), 2) + math.pow((creeperz - i['z']), 2)))
                         if LOGGING:
                             print("DISTANCE ", last_arrow_dis)
-                        reward -= (last_arrow_dis ** 2) / 3 - 8
+                        reward -= (last_arrow_dis ** 2) / 3 - 17
                         self.prev_arrow_id = i['id']
             # if 'IsAlive' in info:
             #     isAlive = info['IsAlive']
