@@ -112,7 +112,7 @@ if __name__ == '__main__':
 
         callbacks = CallbackList([eval_callback, checkpoint_callback])
 
-        model.learn(total_timesteps=300000, callback=callbacks, tb_log_name='first_run')
+        model.learn(total_timesteps=1000000, callback=callbacks, tb_log_name='first_run')
         model.save("dqn_day2")
         print('--- DONE TRAINING ---')
 
