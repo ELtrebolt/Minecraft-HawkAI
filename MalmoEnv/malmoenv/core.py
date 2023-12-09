@@ -16,6 +16,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
+import math
 
 from lxml import etree
 import struct
@@ -449,6 +450,10 @@ class Env(gym.Env):
         if e is not None:
             e.attrib['port'] = str(self.integratedServerPort)
 
+    def _generate_point(self, x, z, r):
+        angle = math.pi * 2 * random.random()
+        return math.cos(angle) * r + x, math.sin(angle) * r + z
+
     def _init_mission(self):
         ok = 0
         while ok != 1:
@@ -459,10 +464,12 @@ class Env(gym.Env):
             agenty = 57
             agentz = 0
 
+            # between 6 and 9 blocks away
+            RADIUS = 6 + random.random() * 3
+
             # Spawn creeper randomly
-            x = agentx + random.randint(-9, 9)
             y = agenty
-            z = agentz + random.randint(-9, 9)
+            x, z = self._generate_point(agentx, agentz, RADIUS)
             xml = xml.replace(b'<DrawEntity x="9" y="57" z="5"', f'<DrawEntity x="{x}" y="{y}" z="{z}"'.encode())
 
             token = (self._get_token() + ":" + str(self.agent_count)).encode()
