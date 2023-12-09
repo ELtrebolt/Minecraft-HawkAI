@@ -90,14 +90,14 @@ if __name__ == '__main__':
         def log(message):
             print('[' + str(role) + '] ' + message)
 
-        model = load_saved_model("./logs/rl_model_280000_steps.zip", env)
-        eval_model(model, env)
+        # model = load_saved_model("./logs/rl_model_280000_steps.zip", env)
+        # eval_model(model, env)
 
         tmp_path = "./logs/"
         # set up logger
         new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
 
-        # model = DQN("MlpPolicy", env, verbose=1, tensorboard_log=tmp_path)
+        model = DQN("MlpPolicy", env, verbose=1, tensorboard_log=tmp_path)
         model.set_logger(new_logger)
 
         checkpoint_callback = CheckpointCallback(
@@ -111,6 +111,7 @@ if __name__ == '__main__':
         # Use deterministic actions for evaluation
         eval_callback = EvalCallback(env, best_model_save_path="./eval_logs/",
                                      log_path="./eval_logs/", eval_freq=7000,
+                                     n_eval_episodes=8,
                                      deterministic=True, render=True, verbose=1)
 
         callbacks = CallbackList([eval_callback, checkpoint_callback])
