@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
     def eval_model(model, env):
         obs, info = env.reset()
-        num_episodes = 5
+        num_episodes = 100
         cur = 0
         while True:
             action, _states = model.predict(obs)
@@ -71,8 +71,11 @@ if __name__ == '__main__':
                     break
                 obs, info = env.reset()
 
-    def load_saved_model(path, env):
-        return DQN.load(path, env=env)
+    def load_saved_model(path, env, replay_path=None):
+        model = DQN.load(path, env=env)
+        if replay_path:
+            model.load_replay_buffer(replay_path)
+        return model
 
     def run(role):
         ACTIONS = ['turn', 'pitch', 'use']
@@ -87,14 +90,14 @@ if __name__ == '__main__':
         def log(message):
             print('[' + str(role) + '] ' + message)
 
-        # saved_model = load_saved_model("./logs/rl_model_300000_steps.zip", env)
-        # eval_model(saved_model, env)
+        model = load_saved_model("./logs/rl_model_280000_steps.zip", env)
+        eval_model(model, env)
 
         tmp_path = "./logs/"
         # set up logger
         new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
 
-        model = DQN("MlpPolicy", env, verbose=1, tensorboard_log=tmp_path)
+        # model = DQN("MlpPolicy", env, verbose=1, tensorboard_log=tmp_path)
         model.set_logger(new_logger)
 
         checkpoint_callback = CheckpointCallback(
@@ -107,12 +110,12 @@ if __name__ == '__main__':
 
         # Use deterministic actions for evaluation
         eval_callback = EvalCallback(env, best_model_save_path="./eval_logs/",
-                                     log_path="./eval_logs/", eval_freq=5000,
+                                     log_path="./eval_logs/", eval_freq=7000,
                                      deterministic=True, render=True, verbose=1)
 
         callbacks = CallbackList([eval_callback, checkpoint_callback])
 
-        model.learn(total_timesteps=1000000, callback=callbacks, tb_log_name='first_run')
+        model.learn(total_timesteps=300000, callback=callbacks, tb_log_name='first_run')
         model.save("dqn_day2")
         print('--- DONE TRAINING ---')
 
