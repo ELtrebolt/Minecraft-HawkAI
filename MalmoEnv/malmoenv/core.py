@@ -453,6 +453,18 @@ class Env(gym.Env):
         ok = 0
         while ok != 1:
             xml = etree.tostring(self.xml)
+
+            # find agent xyz
+            agentx = 15
+            agenty = 57
+            agentz = 0
+
+            # Spawn creeper randomly
+            x = agentx + random.randint(-9, 9)
+            y = agenty
+            z = agentz + random.randint(-9, 9)
+            xml = xml.replace(b'<DrawEntity x="9" y="57" z="5"', f'<DrawEntity x="{x}" y="{y}" z="{z}"'.encode())
+
             token = (self._get_token() + ":" + str(self.agent_count)).encode()
             # print(xml.decode())
             comms.send_message(self.client_socket, xml)

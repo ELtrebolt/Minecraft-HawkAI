@@ -6,7 +6,7 @@
 
     <ModSettings>
         <MsPerTick> 25 </MsPerTick>
-        <PrioritiseOffscreenRendering>true</PrioritiseOffscreenRendering>
+        <PrioritiseOffscreenRendering>false</PrioritiseOffscreenRendering>
     </ModSettings>
     
     <ServerSection>
@@ -23,7 +23,7 @@
             <DrawEntity x="9" y="57" z="5" yaw="270" type="Creeper" />
         </DrawingDecorator>
 
-        <ServerQuitFromTimeUp timeLimitMs="15000"/>
+        <ServerQuitFromTimeUp timeLimitMs="17000"/>
         <ServerQuitWhenAnyAgentFinishes/>
     </ServerHandlers>
     </ServerSection>
