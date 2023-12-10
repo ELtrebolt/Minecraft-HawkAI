@@ -25,12 +25,7 @@ class CustomObservationSpace(gym.spaces.Box):
 class CustomEnv(malmoenv.core.Env):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._reset_yaw_pitch()
         self.info_parser = InfoParser()
-
-    def _reset_yaw_pitch(self):
-        self.pitch = DEFAULT_PITCH
-        self.yaw = DEFAULT_YAW
 
     def init(self, *args, **kwargs):
         super().init(*args, **kwargs)
@@ -45,11 +40,11 @@ class CustomEnv(malmoenv.core.Env):
         obs, reward, done, info = AGENT_INIT, 0, False, {}
 
         if command == "turn":
-            self.yaw += YAW_DELTA * int(val)
-            obs, reward, done, info = super().step(f"setYaw {self.yaw}")
+            self.agent_yaw += YAW_DELTA * int(val)
+            obs, reward, done, info = super().step(f"setYaw {self.agent_yaw}")
         elif command == "pitch":
-            self.pitch += PITCH_DELTA * int(val)
-            obs, reward, done, info = super().step(f"setPitch {self.pitch}")
+            self.agent_pitch += PITCH_DELTA * int(val)
+            obs, reward, done, info = super().step(f"setPitch {self.agent_pitch}")
         elif command == "use":
             obs, reward, done, info = super().step("use 1")
             if not done:
@@ -57,18 +52,21 @@ class CustomEnv(malmoenv.core.Env):
                 obs, reward, done, info = super().step("use 0")  # Release the bow
             if not done:
                 # wait for arrow entity to appear
-                while not done and not self.info_parser.has_new_arrow(info):
+                check_count = 0
+                while not done and check_count < 75 and not self.info_parser.has_new_arrow(info):
                     if LOGGING and ARROW_LOGGING:
-                        print('arrow appearing...')
+                        print(f'arrow appearing... (check {check_count})')
                     obs, reward, done, info = super().step("turn 0")
+                    check_count += 1
 
-                # wait for arrow entity to land
-                while not done and not self.info_parser.arrow_is_landed(info):
-                    if LOGGING and ARROW_LOGGING:
-                        print('landing arrow... ')
-                    obs, reward, done, info = super().step("turn 0")
-                    while not done and not info:
+                if check_count < 50:
+                    # wait for arrow entity to land
+                    while not done and not self.info_parser.arrow_is_landed(info):
+                        if LOGGING and ARROW_LOGGING:
+                            print('landing arrow... ')
                         obs, reward, done, info = super().step("turn 0")
+                        while not done and not info:
+                            obs, reward, done, info = super().step("turn 0")
 
                 reward -= 10  # penalty for firing arrow
         elif command == "wait":
@@ -91,5 +89,4 @@ class CustomEnv(malmoenv.core.Env):
 
     def reset(self, seed=None, options=None):
         super().reset()
-        self._reset_yaw_pitch()
-        return np.array(AGENT_INIT, np.float64), {}
+        return np.array(AGENT_INIT+(self.agent_yaw, self.agent_pitch), np.float64), {}

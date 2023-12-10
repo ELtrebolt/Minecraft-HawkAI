@@ -106,6 +106,9 @@ class Env(gym.Env):
         self.height = 0
         self.depth = 0
 
+        self.agent_yaw = 90
+        self.agent_pitch = 0
+
     def init(self, xml, port, server=None,
              server2=None, port2=None,
              role=0, exp_uid=None, episode=0,
@@ -463,6 +466,8 @@ class Env(gym.Env):
             agentx = 15
             agenty = 57
             agentz = 0
+            self.agent_yaw = -180 + random.randint(0, 36) * 10
+            self.agent_pitch = 0
 
             # between 6 and 9 blocks away
             RADIUS = 6 + random.random() * 3
@@ -471,6 +476,7 @@ class Env(gym.Env):
             y = agenty
             x, z = self._generate_point(agentx, agentz, RADIUS)
             xml = xml.replace(b'<DrawEntity x="9" y="57" z="5"', f'<DrawEntity x="{x}" y="{y}" z="{z}"'.encode())
+            xml = xml.replace(b'<Placement x="15" y="57" z="0" yaw="90" pitch="0"/>', f'<Placement x="15" y="57" z="0" yaw="{self.agent_yaw}" pitch="{self.agent_pitch}"/>'.encode())
 
             token = (self._get_token() + ":" + str(self.agent_count)).encode()
             # print(xml.decode())

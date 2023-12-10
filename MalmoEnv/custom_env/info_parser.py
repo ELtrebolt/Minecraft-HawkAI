@@ -17,7 +17,7 @@ class InfoParser:
             return {}
 
     def parseInfo(self, info):
-        agentx, agenty, agentz, agentyaw, agentpitch = AGENT_INIT
+        agentx, agenty, agentz, agentyaw, agentpitch = AGENT_INIT + (90, 0)
         creeperx, creepery, creeperz, creeperyaw = CREEPER_INIT
         reward = 0
 
