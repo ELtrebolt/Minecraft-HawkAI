@@ -82,8 +82,8 @@ class CustomEnv(malmoenv.core.Env):
     def step(self, action):
         obs, reward, done, info = self._execute_action(action)
 
-        while not done and not info:
-            obs, reward, done, info = super().step("turn 0")
+        # while not done and not info:
+        #     obs, reward, done, info = super().step("turn 0")
 
         info_dict = self.info_parser.evalInfo(info)
         new_obs, reward_delta = self.info_parser.parseInfo(info_dict, self.agent_yaw, self.agent_pitch)
