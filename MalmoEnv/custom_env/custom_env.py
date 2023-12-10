@@ -59,7 +59,7 @@ class CustomEnv(malmoenv.core.Env):
                     obs, reward, done, info = super().step("turn 0")
                     check_count += 1
 
-                if check_count < 50:
+                if check_count < 70:
                     # wait for arrow entity to land
                     while not done and not self.info_parser.arrow_is_landed(info):
                         if LOGGING and ARROW_LOGGING:
