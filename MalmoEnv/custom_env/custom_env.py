@@ -53,7 +53,7 @@ class CustomEnv(malmoenv.core.Env):
             if not done:
                 # wait for arrow entity to appear
                 check_count = 0
-                while not done and check_count < 75 and not self.info_parser.has_new_arrow(info):
+                while not done and check_count < 70 and not self.info_parser.has_new_arrow(info):
                     if LOGGING and ARROW_LOGGING:
                         print(f'arrow appearing... (check {check_count})')
                     obs, reward, done, info = super().step("turn 0")
