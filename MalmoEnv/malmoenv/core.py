@@ -108,6 +108,7 @@ class Env(gym.Env):
 
         self.agent_yaw = 90
         self.agent_pitch = 0
+        self.creep_x_init, self.creep_y_init, self.creep_z_init = 15, 57, -6
 
     def init(self, xml, port, server=None,
              server2=None, port2=None,
@@ -466,16 +467,16 @@ class Env(gym.Env):
             agentx = 15
             agenty = 57
             agentz = 0
-            self.agent_yaw = -180 + random.randint(0, 36) * 10
+            self.agent_yaw = random.randint(0, 36) * 10
             self.agent_pitch = 0
 
             # between 7 and 9 blocks away
             RADIUS = 7 + random.random() * 2
 
             # Spawn creeper randomly
-            y = agenty
-            x, z = self._generate_point(agentx, agentz, RADIUS)
-            xml = xml.replace(b'<DrawEntity x="9" y="57" z="5"', f'<DrawEntity x="{x}" y="{y}" z="{z}"'.encode())
+            self.creep_y_init = agenty
+            self.creep_x_init, self.creep_z_init = self._generate_point(agentx, agentz, RADIUS)
+            xml = xml.replace(b'<DrawEntity x="9" y="57" z="5"', f'<DrawEntity x="{self.creep_x_init}" y="{self.creep_y_init}" z="{self.creep_z_init}"'.encode())
             xml = xml.replace(b'<Placement x="15" y="57" z="0" yaw="90" pitch="0"/>', f'<Placement x="15" y="57" z="0" yaw="{self.agent_yaw}" pitch="{self.agent_pitch}"/>'.encode())
 
             token = (self._get_token() + ":" + str(self.agent_count)).encode()

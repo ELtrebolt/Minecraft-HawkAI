@@ -7,7 +7,7 @@ import math
 
 from malmoenv.core import ActionSpace
 
-from .info_parser import InfoParser
+from .info_parser import InfoParser, calculate_creeper_yaw_pitch
 from .constants import *
 
 
@@ -18,8 +18,8 @@ class CustomObservationSpace(gym.spaces.Box):
     def __init__(self):
         # deltax, deltaz, agentyaw, agentpitch
         gym.spaces.Box.__init__(self,
-                                low=np.array([-100, -100, -180, -90]), high=np.array([100, 100, 180, 90]),
-                                shape=(4,), dtype=np.float64)
+                                low=np.array([-360, -90]), high=np.array([360, 90]),
+                                shape=(2,), dtype=np.float64)
 
 
 class CustomEnv(malmoenv.core.Env):
@@ -32,18 +32,23 @@ class CustomEnv(malmoenv.core.Env):
         self.observation_space = CustomObservationSpace()
         self.action_space = ActionSpace(ACTIONS)
 
+    def _get_obs(self):
+        # only works for initial reset, then we use info_parser live data. creep_x, y, and z are not updated
+        creeper_yaw, creeper_pitch = calculate_creeper_yaw_pitch(self.creep_x_init, self.creep_y_init, self.creep_z_init)
+        return np.array([creeper_yaw - self.agent_yaw, creeper_pitch - self.agent_pitch], np.float64)
+
     def _execute_action(self, action: int):
 
         command = self.action_space[action]
         if " " in command:
             command, val = command.split()
-        obs, reward, done, info = AGENT_INIT, 0, False, {}
+        obs, reward, done, info = np.array([]), 0, False, {}
 
         if command == "turn":
-            self.agent_yaw += YAW_DELTA * int(val)
+            self.agent_yaw = (self.agent_yaw + YAW_DELTA * int(val)) % 360
             obs, reward, done, info = super().step(f"setYaw {self.agent_yaw}")
         elif command == "pitch":
-            self.agent_pitch += PITCH_DELTA * int(val)
+            self.agent_pitch = max(min(PITCH_DELTA * int(val), 90), -90)
             obs, reward, done, info = super().step(f"setPitch {self.agent_pitch}")
         elif command == "use":
             obs, reward, done, info = super().step("use 1")
@@ -77,8 +82,11 @@ class CustomEnv(malmoenv.core.Env):
     def step(self, action):
         obs, reward, done, info = self._execute_action(action)
 
+        while not done and not info:
+            obs, reward, done, info = super().step("turn 0")
+
         info_dict = self.info_parser.evalInfo(info)
-        new_obs, reward_delta = self.info_parser.parseInfo(info_dict)
+        new_obs, reward_delta = self.info_parser.parseInfo(info_dict, self.agent_yaw, self.agent_pitch)
         if reward is None and LOGGING:
             print("NONE", action, obs, reward, done, info)
         reward = reward or 0
@@ -89,4 +97,5 @@ class CustomEnv(malmoenv.core.Env):
 
     def reset(self, seed=None, options=None):
         super().reset()
-        return np.array(AGENT_INIT+(self.agent_yaw, self.agent_pitch), np.float64), {}
+        self.info_parser.init_creeper(self.creep_x_init, self.creep_y_init, self.creep_z_init)
+        return self._get_obs(), {}

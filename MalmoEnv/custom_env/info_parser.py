@@ -1,6 +1,18 @@
 import math
 import numpy as np
-from .constants import AGENT_INIT, CREEPER_INIT, LOGGING
+from .constants import AGENT_XYZ_INIT, CREEPER_INIT, LOGGING
+
+
+def calculate_creeper_yaw_pitch(creep_x, creep_y, creep_z):
+    agent_x, agent_y, agent_z = AGENT_XYZ_INIT
+    d_x = creep_x - agent_x
+    d_y = creep_y - agent_y
+    d_z = creep_z - agent_z
+
+    yaw = -math.degrees(math.atan2(d_x, d_z)) % 360
+    pitch = math.degrees(math.atan2(d_y, math.sqrt(d_z ** 2 + d_x ** 2)))
+
+    return yaw, pitch
 
 
 class InfoParser:
@@ -8,6 +20,12 @@ class InfoParser:
         self.prev_arrow_id = 0
         self.prev_creeper_life = 20.0
         self.prev_damage_taken = 0
+        self.creeperx, self.creepery, self.creeperz, _ = CREEPER_INIT
+
+    def init_creeper(self, creep_x_init, creep_y_init, creep_z_init):
+        self.creeperx = creep_x_init
+        self.creepery = creep_y_init
+        self.creeperz = creep_z_init
 
     @staticmethod
     def evalInfo(info):
@@ -16,9 +34,8 @@ class InfoParser:
         else:
             return {}
 
-    def parseInfo(self, info):
-        agentx, agentz, agentyaw, agentpitch = AGENT_INIT + (90, 0)
-        creeperx, creepery, creeperz, creeperyaw = CREEPER_INIT
+    def parseInfo(self, info, agentyaw, agentpitch):
+        agentx, agenty, agentz = AGENT_XYZ_INIT
         reward = 0
 
         if info:
@@ -29,9 +46,9 @@ class InfoParser:
             for i in info['entities']:
                 if i['name'] == 'Creeper':
                     creeperAlive = True
-                    creeperx = i['x']
-                    creepery = i['y']
-                    creeperz = i['z']
+                    self.creeperx = i['x']
+                    self.creepery = i['y']
+                    self.creeperz = i['z']
                     creeperyaw = i['yaw']
                     if self._creeper_took_damage(i):
                         reward += 500
@@ -48,10 +65,10 @@ class InfoParser:
                 elif i == info['entities'][-1] and i['name'] == 'Arrow':
                     if i['id'] != self.prev_arrow_id and i["y"] < 57.3:
                         last_arrow_dis = math.sqrt(
-                            (math.pow((creeperx - i['x']), 2) + math.pow((creeperz - i['z']), 2)))
+                            (math.pow((self.creeperx - i['x']), 2) + math.pow((self.creeperz - i['z']), 2)))
                         if LOGGING:
                             print("DISTANCE ", last_arrow_dis)
-                        reward -= (last_arrow_dis ** 1.8) / 3.5 - 16
+                        reward -= (last_arrow_dis ** 2) / 3 - 16
                         self.prev_arrow_id = i['id']
             # if 'IsAlive' in info:
             #     isAlive = info['IsAlive']
@@ -61,7 +78,10 @@ class InfoParser:
                 if damageTaken > 0:
                     reward -= 100
 
-        state = np.array([agentx - creeperx, agentz - creeperz, agentyaw, agentpitch], np.float64)
+        creeper_yaw, creeper_pitch = calculate_creeper_yaw_pitch(self.creeperx, self.creepery, self.creeperz)
+        yaw_diff = creeper_yaw - agentyaw
+        pitch_diff = creeper_pitch - agentpitch
+        state = np.array([yaw_diff, pitch_diff], np.float64)
 
         return state, reward
 
@@ -88,3 +108,4 @@ class InfoParser:
         arrow_landed = 'entities' in info and (i := info["entities"][-1])["name"] == "Arrow" and i["y"] < 57.3
 
         return creeper_hit or arrow_landed
+
