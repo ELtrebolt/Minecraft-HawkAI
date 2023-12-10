@@ -17,7 +17,7 @@ class InfoParser:
             return {}
 
     def parseInfo(self, info):
-        agentx, agenty, agentz, agentyaw, agentpitch = AGENT_INIT + (90, 0)
+        agentx, agentz, agentyaw, agentpitch = AGENT_INIT + (90, 0)
         creeperx, creepery, creeperz, creeperyaw = CREEPER_INIT
         reward = 0
 
@@ -42,7 +42,6 @@ class InfoParser:
 
                 elif i['name'] == 'MalmoTutorialBot':
                     agentx = i['x']
-                    agenty = i['y']
                     agentz = i['z']
                     agentyaw = i['yaw']
                     agentpitch = i['pitch']
@@ -52,7 +51,7 @@ class InfoParser:
                             (math.pow((creeperx - i['x']), 2) + math.pow((creeperz - i['z']), 2)))
                         if LOGGING:
                             print("DISTANCE ", last_arrow_dis)
-                        reward -= (last_arrow_dis ** 2) / 3 - 16
+                        reward -= (last_arrow_dis ** 1.8) / 3.5 - 16
                         self.prev_arrow_id = i['id']
             # if 'IsAlive' in info:
             #     isAlive = info['IsAlive']
@@ -62,7 +61,7 @@ class InfoParser:
                 if damageTaken > 0:
                     reward -= 100
 
-        state = np.array([agentx - creeperx, agenty - creepery, agentz - creeperz, agentyaw, agentpitch], np.float64)
+        state = np.array([agentx - creeperx, agentz - creeperz, agentyaw, agentpitch], np.float64)
 
         return state, reward
 

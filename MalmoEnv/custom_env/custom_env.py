@@ -16,10 +16,10 @@ class CustomObservationSpace(gym.spaces.Box):
     """
 
     def __init__(self):
-        # deltax, deltay, deltaz, agentyaw, agentpitch
+        # deltax, deltaz, agentyaw, agentpitch
         gym.spaces.Box.__init__(self,
-                                low=np.array([-100, -100, -100, -180, -90]), high=np.array([100, 100, 100, 180, 90]),
-                                shape=(5,), dtype=np.float64)
+                                low=np.array([-100, -100, -180, -90]), high=np.array([100, 100, 180, 90]),
+                                shape=(4,), dtype=np.float64)
 
 
 class CustomEnv(malmoenv.core.Env):
