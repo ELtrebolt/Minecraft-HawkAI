@@ -469,8 +469,8 @@ class Env(gym.Env):
             self.agent_yaw = -180 + random.randint(0, 36) * 10
             self.agent_pitch = 0
 
-            # between 6 and 9 blocks away
-            RADIUS = 6 + random.random() * 3
+            # between 7 and 9 blocks away
+            RADIUS = 7 + random.random() * 2
 
             # Spawn creeper randomly
             y = agenty
