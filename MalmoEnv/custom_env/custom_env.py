@@ -48,7 +48,7 @@ class CustomEnv(malmoenv.core.Env):
             self.agent_yaw = (self.agent_yaw + YAW_DELTA * int(val)) % 360
             obs, reward, done, info = super().step(f"setYaw {self.agent_yaw}")
         elif command == "pitch":
-            self.agent_pitch = max(min(PITCH_DELTA * int(val), 90), -90)
+            self.agent_pitch = max(min(self.agent_pitch + PITCH_DELTA * int(val), 90), -90)
             obs, reward, done, info = super().step(f"setPitch {self.agent_pitch}")
         elif command == "use":
             obs, reward, done, info = super().step("use 1")
