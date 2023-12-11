@@ -39,4 +39,7 @@ Running the agent in our custom mission environment (run each command in differe
 
 (In another shell) `cd MalmoEnv` optionally run `python3 setup.py install`
 
-`python3 run.py --mission missions/hawkAI.xml --port 9000`
+`python3 runmultiagent.py --mission missions/hawkAI.xml --port 9000`
+
+## Final Model Simulation
+![](https://github.com/ELtrebolt/Minecraft-HawkAI/blob/main/MalmoEnv/gifs/successful_run.gif)
