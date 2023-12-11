@@ -36,11 +36,11 @@ To prepare Minecraft:
 
 Running the agent in our custom mission environment (run each command in different cmd prompt/shells):
 
-`./launchClient.sh -port 9000 -env` or (On Windows) `launchClient.bat -port 9000 -env`
+`./launchClient.sh -port 9000 -env` or (On Windows) `.\launchClient.bat -port 9000 -env`
 
-(In another shell) `cd MalmoEnv` optionally run `python3 setup.py install`
+(In another shell) `cd MalmoEnv` optionally run `python setup.py install`
 
-`python3 runmultiagent.py --mission missions/hawkAI.xml --port 9000`
+`python runmultiagent.py --mission missions/hawkAI.xml --port 9000`
 
 ## Final Model Simulation
 

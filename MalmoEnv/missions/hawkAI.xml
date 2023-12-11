@@ -5,8 +5,8 @@
     </About>
 
     <ModSettings>
-        <MsPerTick> 25 </MsPerTick>
-        <PrioritiseOffscreenRendering>true</PrioritiseOffscreenRendering>
+        <MsPerTick> 50 </MsPerTick>
+        <PrioritiseOffscreenRendering>false</PrioritiseOffscreenRendering>
     </ModSettings>
     
     <ServerSection>
