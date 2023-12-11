@@ -82,41 +82,42 @@ if __name__ == '__main__':
         def log(message):
             print('[' + str(role) + '] ' + message)
 
-        # used to load and evaluate a pre-existing model
-        # saved_model = load_saved_model("./logs/rl_model_300000_steps.zip", env)
-        # eval_model(saved_model, env)
+        # == used to load and evaluate a pre-existing model ==
+        saved_model = load_saved_model("./model/best_model.zip", env)
+        eval_model(saved_model, env)
 
-        tmp_path = "./logs/"
-        # set up logger
-        new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
+        # == used to setup the logger and train the DQN model == 
+        # tmp_path = "./logs/"
+        # # set up logger
+        # new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
 
-        model = DQN("MlpPolicy", env, verbose=1, tensorboard_log=tmp_path)
-        model.set_logger(new_logger)
+        # model = DQN("MlpPolicy", env, verbose=1, tensorboard_log=tmp_path)
+        # model.set_logger(new_logger)
 
-        checkpoint_callback = CheckpointCallback(
-            save_freq=10000,
-            save_path="./logs/",
-            name_prefix="rl_model",
-            save_replay_buffer=True,
-            save_vecnormalize=True,
-        )
+        # checkpoint_callback = CheckpointCallback(
+        #     save_freq=10000,
+        #     save_path="./logs/",
+        #     name_prefix="rl_model",
+        #     save_replay_buffer=True,
+        #     save_vecnormalize=True,
+        # )
 
-        # Use deterministic actions for evaluation
-        eval_callback = EvalCallback(env, best_model_save_path="./eval_logs/",
-                                     log_path="./eval_logs/", eval_freq=5000,
-                                     deterministic=True, render=True, verbose=1)
+        # # Use deterministic actions for evaluation
+        # eval_callback = EvalCallback(env, best_model_save_path="./eval_logs/",
+        #                              log_path="./eval_logs/", eval_freq=5000,
+        #                              deterministic=True, render=True, verbose=1)
 
-        callbacks = CallbackList([eval_callback, checkpoint_callback])
+        # callbacks = CallbackList([eval_callback, checkpoint_callback])
 
-        model.learn(total_timesteps=300000, callback=callbacks, tb_log_name='first_run')
-        model.save("dqn_day2")
-        print('--- DONE TRAINING ---')
+        # model.learn(total_timesteps=300000, callback=callbacks, tb_log_name='first_run')
+        # model.save("dqn_day2")
+        # print('--- DONE TRAINING ---')
 
-        for i in range(10):
-            print('Testing in ' + str(10 - i))
-            time.sleep(1)
+        # for i in range(10):
+        #     print('Testing in ' + str(10 - i))
+        #     time.sleep(1)
 
-        eval_model(model, env)
+        # eval_model(model, env)
 
         env.close()
 
