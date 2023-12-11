@@ -24,10 +24,9 @@ Install dependencies:
 
 Java8 JDK, python3, git
 
-`pip install gym lxml numpy pillow`
+In the root directory: `pip install -r requirements.txt`
 
-To prepare Minecraft (after cloning this repository with
-`git clone -b malmoenv https://github.com/Microsoft/malmo.git`):
+To prepare Minecraft:
 
 `cd Minecraft`
 
@@ -42,4 +41,5 @@ Running the agent in our custom mission environment (run each command in differe
 `python3 runmultiagent.py --mission missions/hawkAI.xml --port 9000`
 
 ## Final Model Simulation
+
 ![](https://github.com/ELtrebolt/Minecraft-HawkAI/blob/main/MalmoEnv/gifs/successful_run.gif)
