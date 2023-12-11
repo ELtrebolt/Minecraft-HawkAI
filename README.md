@@ -1,6 +1,6 @@
 # Malmö #
 
-**Note: Our CS-175 Minecraft-HawkAI Readme is in the folder "MalmoEnv", since that is where our code changes reside**
+**Note: Our CS-175 Minecraft-HawkAI Readme is in the folder "[MalmoEnv](https://github.com/ELtrebolt/Minecraft-HawkAI/tree/main/MalmoEnv)", since that is where our code changes reside**
 
 Project Malmö is a platform for Artificial Intelligence experimentation and research built on top of Minecraft. We aim to inspire a new generation of research into challenging new problems presented by this unique environment.
 
