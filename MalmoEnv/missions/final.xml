@@ -1,7 +1,7 @@
 <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             
     <About>
-    <Summary>Hello world!</Summary>
+    <Summary>Project HawkAI</Summary>
     </About>
 
     <ModSettings>

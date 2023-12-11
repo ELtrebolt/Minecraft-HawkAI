@@ -3,7 +3,6 @@ import time
 import malmoenv
 import gym
 import numpy as np
-import math
 
 from malmoenv.core import ActionSpace
 
@@ -16,7 +15,7 @@ class CustomObservationSpace(gym.spaces.Box):
     """
 
     def __init__(self):
-        # deltax, deltay, deltaz, agentyaw, agentpitch
+        # observation space: deltax, deltay, deltaz, agentyaw, agentpitch
         gym.spaces.Box.__init__(self,
                                 low=np.array([-100, -100, -100, -180, -90]), high=np.array([100, 100, 100, 180, 90]),
                                 shape=(5,), dtype=np.float64)
@@ -70,7 +69,7 @@ class CustomEnv(malmoenv.core.Env):
                     while not done and not info:
                         obs, reward, done, info = super().step("turn 0")
 
-                reward -= 1  # penalty for firing arrow
+                reward -= 10  # penalty for firing an arrow
         elif command == "wait":
             obs, reward, done, info = super().step("turn 0")
 

@@ -16,9 +16,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
-import random
-
-import malmoenv
 import argparse
 from pathlib import Path
 import time
@@ -26,9 +23,7 @@ from lxml import etree
 from threading import Thread
 import threading
 import numpy as np
-from collections import defaultdict
-import math
-from stable_baselines3 import DQN, A2C, PPO
+from stable_baselines3 import DQN
 from stable_baselines3.common.logger import configure
 from stable_baselines3.common.callbacks import CheckpointCallback, EvalCallback, CallbackList
 from custom_env.custom_env import CustomEnv
@@ -87,6 +82,7 @@ if __name__ == '__main__':
         def log(message):
             print('[' + str(role) + '] ' + message)
 
+        # used to load and evaluate a pre-existing model
         # saved_model = load_saved_model("./logs/rl_model_300000_steps.zip", env)
         # eval_model(saved_model, env)
 
@@ -112,7 +108,7 @@ if __name__ == '__main__':
 
         callbacks = CallbackList([eval_callback, checkpoint_callback])
 
-        model.learn(total_timesteps=1000000, callback=callbacks, tb_log_name='first_run')
+        model.learn(total_timesteps=300000, callback=callbacks, tb_log_name='first_run')
         model.save("dqn_day2")
         print('--- DONE TRAINING ---')
 
@@ -122,110 +118,7 @@ if __name__ == '__main__':
 
         eval_model(model, env)
 
-                # for r in range(args.episodes):
-        #     log("reset " + str(r))
-        #     env.reset()
-        #
-        #     done = False
-        #     LOS = False
-        #     while not done and not LOS:
-        #         # Random action
-        #         action = env.action_space.sample()
-        #
-        #         # 0 aim down / 1 aim up
-        #         # 2 turn right / 3 turn left
-        #         # 4 right click shoot bow
-        #
-        #         # Turn until pig is aligned with cursor
-        #         # Hold Shoot based on distance to pig
-        #         # action = 0
-        #
-        #         log("action: " + str(env.action_space[action]))
-        #
-        #         if env.action_space[action] == "use 1":
-        #             env.step(action)
-        #             sleep_time = random.random() * 2
-        #             log(f"Sleep Time: {sleep_time}")
-        #             time.sleep(sleep_time)
-        #             log("action: use 0")
-        #             obs, reward, done, info = env.step(env.action_space.actions.index('use 0'))
-        #         else:
-        #             obs, reward, done, info = env.step(action)
-        #
-        #         log("reward: " + str(reward))
-        #         # log("done: " + str(done))
-        #         log("info: " + str(info))
-        #         log(" obs: " + str(obs))
-        #
-        #         if info:
-        #             info = eval(info.replace('false', 'False').replace('true', 'True'))
-        #             if 'LineOfSight' in info and info['LineOfSight']['type'] == 'Pig':
-        #                 LOS = True
-        #             # player_coords, pig_coords = get_player_and_pig_coords(info)
-        #             # log(str(player_coords) + ' ||| ' + str(pig_coords))
-        #             # yaw, pitch = calculate_yaw_and_pitch(player_coords, pig_coords)
-        #             # log(str(yaw) + ' ||| ' + str(pitch))
-        #             # dyaw, dpitch = discretize_yaw_and_pitch(yaw, pitch)
-        #             # log(str(dyaw) + ' ||| ' + str(dpitch))
-        #             # turn, move = decide_movement_actions(dyaw, dpitch)
-        #             # log(str(turn) + ' ||| ' + str(move))
-        #
-        #
-        #         time.sleep(.05)
-        #
-        #     for i in range(len(env.action_space)):
-        #         log("action: " + str(env.action_space[i]))
-
         env.close()
-
-    def get_player_and_pig_coords(info):
-        pig_coords = {}
-        player_coords = {}
-        for i in info['entities']:
-            if i['name'] == 'Pig':
-                pig_coords['x'] = i['x']
-                pig_coords['y'] = i['y']
-                pig_coords['z'] = i['z']
-            elif i['name'] == 'MalmoTutorialBot':
-                player_coords['x'] = i['x']
-                player_coords['y'] = i['y']
-                player_coords['z'] = i['z']
-        return [player_coords, pig_coords]
-
-    def calculate_yaw_and_pitch(player_coords, pig_coords):
-        # Calculate relative position
-        rel_x = pig_coords['x'] - player_coords['x']
-        rel_y = pig_coords['y'] - player_coords['y']
-        rel_z = pig_coords['z'] - player_coords['z']
-
-        # Calculate yaw (horizontal angle)
-        yaw = math.atan2(rel_z, rel_x) * 180 / math.pi
-        pitch = math.atan2(rel_y, math.sqrt(rel_x**2 + rel_z**2)) * 180 / math.pi
-
-        return yaw, pitch
-
-    # Constants for discretization
-    NUM_YAW_BINS = 4  # Number of bins for yaw (adjust as needed)
-    NUM_PITCH_BINS = 3  # Number of bins for pitch (adjust as needed)
-
-    def discretize_yaw_and_pitch(yaw, pitch):
-        # Discretize yaw and pitch into bins
-        discrete_yaw = round((yaw % 360) / 360 * (NUM_YAW_BINS - 1))
-        discrete_pitch = round((pitch + 90) / 180 * (NUM_PITCH_BINS - 1))
-
-        return discrete_yaw, discrete_pitch
-
-    def decide_movement_actions(discrete_yaw, discrete_pitch):
-        # Based on the discretized yaw and pitch, decide on movement actions
-        # This is a simplified example; you may need to adjust based on your specific movement constraints
-
-        # Example: Turn towards the desired yaw
-        turn_action = 1 if discrete_yaw > 0 else -1
-
-        # Example: Move forward or backward based on pitch
-        move_action = 1 if discrete_pitch > 0 else -1
-
-        return turn_action, move_action
 
     threads = [Thread(target=run, args=(i,)) for i in range(number_of_agents)]
 
