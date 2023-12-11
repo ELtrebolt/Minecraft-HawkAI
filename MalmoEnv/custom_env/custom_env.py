@@ -35,7 +35,9 @@ class CustomEnv(malmoenv.core.Env):
     def _get_obs(self):
         # only works for initial reset, then we use info_parser live data. creep_x, y, and z are not updated
         creeper_yaw, creeper_pitch = calculate_creeper_yaw_pitch(self.creep_x_init, self.creep_y_init, self.creep_z_init)
-        return np.array([creeper_yaw - self.agent_yaw, creeper_pitch - self.agent_pitch], np.float64)
+        agentyaw = self.agent_yaw % 360
+        agentpitch = max(min(self.agent_pitch, 90), -90)
+        return np.array([creeper_yaw - agentyaw, creeper_pitch - agentpitch], np.float64)
 
     def _execute_action(self, action: int):
 
@@ -45,7 +47,7 @@ class CustomEnv(malmoenv.core.Env):
         obs, reward, done, info = np.array([]), 0, False, {}
 
         if command == "turn":
-            self.agent_yaw = (self.agent_yaw + YAW_DELTA * int(val)) % 360
+            self.agent_yaw += YAW_DELTA * int(val)
             obs, reward, done, info = super().step(f"setYaw {self.agent_yaw}")
         elif command == "pitch":
             self.agent_pitch = max(min(self.agent_pitch + PITCH_DELTA * int(val), 90), -90)

@@ -90,7 +90,7 @@ if __name__ == '__main__':
         def log(message):
             print('[' + str(role) + '] ' + message)
 
-        # model = load_saved_model("./logs/rl_model_280000_steps.zip", env)
+        # model = load_saved_model("./logs/rl_model_300000_steps.zip", env)
         # eval_model(model, env)
 
         tmp_path = "./logs/"

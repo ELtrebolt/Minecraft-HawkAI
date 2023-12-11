@@ -79,6 +79,9 @@ class InfoParser:
                     reward -= 100
 
         creeper_yaw, creeper_pitch = calculate_creeper_yaw_pitch(self.creeperx, self.creepery, self.creeperz)
+        agentyaw %= 360
+        agentpitch = max(min(agentpitch, 90), -90)
+
         yaw_diff = creeper_yaw - agentyaw
         pitch_diff = creeper_pitch - agentpitch
         state = np.array([yaw_diff, pitch_diff], np.float64)
